@@ -115,8 +115,13 @@ retrato fresco (`prisma/data-export.json`, gitignored).
     enviar em `/admin/configuracoes` (vira `.webp` com transparência via sharp).
   - Helpers em `src/lib/format.ts`: `parseInstagram()`, `whatsappLink()`.
     Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis.ts`.
-  - Home e `/contato` são `export const dynamic = "force-dynamic"` (senão o
-    Next prerenderia estático e o conteúdo ficaria congelado na build).
+  - Home, `/imoveis`, `/imoveis/[id]` e `/contato` são `force-dynamic`. As
+    actions do `/admin` (imóveis, fotos, contratos) chamam `revalidarPortal()`
+    (`src/lib/revalidate.ts` → `revalidatePath("/", "layout")`) para o portal
+    refletir mudanças na hora.
+  - **Home mostra TODOS os imóveis disponíveis** (destaque primeiro, até 6).
+    A lógica antiga escondia o resto quando havia ≥1 destaque — o cliente
+    achava que "o site não atualizava" (era isso, não cache).
   - **Endereço**: o cliente confirmou (31/08/2026) que o certo é
     **"Avenida Benevenuto Ottoni, nº 6, Água Clara/MS"** — já gravado em
     Configurações. O "nº 1.475, Centro" que aparecia no PDF de contrato usado

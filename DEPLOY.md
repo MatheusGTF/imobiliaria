@@ -1,115 +1,86 @@
 # Publicar na web (Vercel + Neon + Vercel Blob)
 
-Guia de deploy do portal Água Clara Imóveis. Feito uma vez; depois disso o site
-atualiza sozinho a cada `git push`.
+Runbook do deploy do portal Água Clara Imóveis. Depois de feito, o site
+atualiza sozinho a cada `git push` na branch `main`.
 
 ## Visão geral
 
 | Peça | Serviço | Plano |
 |---|---|---|
 | Aplicação (Next.js) | Vercel | Hobby (grátis) |
-| Banco de dados | Neon (PostgreSQL) | Free |
+| Banco de dados | Neon (PostgreSQL), criado pela integração da Vercel | Free |
 | Fotos dos imóveis | Vercel Blob | Free (1 GB) |
-| Domínio | registro.br | ~R$40/ano |
+| Domínio | registro.br → `aguaclaraimoveis.com.br` | ~R$40/ano |
 
-O código já está preparado para os três (storage de fotos, `postinstall` do
-Prisma, `remotePatterns` de imagem, `trustHost` do NextAuth).
+O código já está preparado: `src/lib/photos.ts` usa o Blob quando
+`BLOB_READ_WRITE_TOKEN` existe; `prisma/schema.prisma` usa
+`POSTGRES_PRISMA_URL` / `DATABASE_URL_UNPOOLED` (nomes criados pelo Neon);
+`vercel.json` roda `prisma generate && prisma migrate deploy && next build`.
 
 ---
 
-## 1. Repositório no GitHub
+## 1. GitHub
 
-```bash
-git remote add origin git@github.com:<usuario>/imobiliaria.git
-git push -u origin master
-```
+Repositório: <https://github.com/MatheusGTF/imobiliaria> (branch `main`).
+`git push` → a Vercel faz deploy automático.
 
-O `.gitignore` já exclui `.env`, `prisma/dev.db`, `prisma/data-export.json` e
-`public/uploads/` — nenhum segredo ou dado pessoal vai para o GitHub.
+## 2. Vercel — projeto, banco e storage
 
-## 2. Banco de dados (Neon)
+1. <https://vercel.com/new> → importar `MatheusGTF/imobiliaria`. **Não preencher
+   env vars** na importação (elas trazem valores de exemplo do `.env.example`).
+2. No projeto → **Storage** → **Create Database** → **Neon** → região mais
+   próxima → **Create** → **Connect** ao projeto (Production + Preview,
+   *sem* custom prefix). Isso injeta `DATABASE_URL`, `POSTGRES_PRISMA_URL`,
+   `DATABASE_URL_UNPOOLED`, etc.
+3. No projeto → **Storage** → **Create** → **Blob**. Injeta os `BLOB_*`.
+4. No projeto → **Settings → Environment Variables**:
+   - Apagar as que vieram do `.env.example` com valor de exemplo
+     (`DATABASE_URL=file:./dev.db`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`).
+   - `AUTH_SECRET` → **Edit** → colar um valor aleatório real
+     (`openssl rand -base64 32`), Production + Preview.
 
-1. Criar projeto em <https://neon.tech> (região mais próxima: `AWS sa-east-1`).
-2. Copiar as duas connection strings do painel:
-   - **Pooled** (`...-pooler...`) → vai em `DATABASE_URL`
-   - **Direct** (sem `-pooler`) → vai em `DIRECT_URL`
+## 3. Deploy
 
-## 3. Trocar o Prisma para PostgreSQL
+Um `git push` na `main` dispara o build. O `vercel.json` faz:
+`prisma generate && prisma migrate deploy && next build` — a migration
+`prisma/migrations/0_init` cria o schema no Neon automaticamente.
 
-No `prisma/schema.prisma`:
-
-```prisma
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-```
-
-Apagar a pasta `prisma/migrations/` (as migrations atuais são de SQLite) e gerar
-a inicial já apontando para o Neon:
-
-```bash
-# .env com DATABASE_URL/DIRECT_URL do Neon
-npx prisma migrate dev --name init
-```
+Deploy verde → site no ar em `imobiliaria-<hash>-<time>.vercel.app`.
 
 ## 4. Levar os dados atuais para o Neon
 
-```bash
-# 1. com o .env apontando para o SQLite (file:./dev.db)
-npm run db:export        # gera prisma/data-export.json
+Os imóveis/contratos/configurações estão no SQLite local. Passo único:
 
-# 2. com o .env apontando para o Neon
-npx prisma migrate deploy
-npm run db:import        # insere imóveis, contratos, configurações...
+```bash
+# 1. gerar o retrato dos dados (com o .env local apontando pro dev.db)
+npm run db:export                     # → prisma/data-export.json
+
+# 2. importar no Neon (POSTGRES_PRISMA_URL/DATABASE_URL_UNPOOLED = Neon no .env)
+npm run db:import
 ```
 
-> As **fotos** (`public/uploads/*.webp`) precisam ser reenviadas pelo `/admin`
-> depois do deploy (elas ficavam só no disco local). São poucas.
+> As **fotos** (`public/uploads/*.webp`) só existiam no disco local — precisam
+> ser reenviadas pelo `/admin` depois do deploy. São poucas.
 
-## 5. Vercel Blob (fotos)
+## 5. Domínio
 
-1. No projeto da Vercel → aba **Storage** → **Create** → **Blob**.
-2. A Vercel injeta `BLOB_READ_WRITE_TOKEN` automaticamente nos deploys.
-   Com essa variável presente, o upload de fotos passa a usar o Blob
-   (ver `src/lib/photos.ts`).
+1. Registrar `aguaclaraimoveis.com.br` no <https://registro.br> (com o CNPJ).
+2. Vercel → projeto → **Settings → Domains** → adicionar
+   `aguaclaraimoveis.com.br` e `www.aguaclaraimoveis.com.br`.
+3. No registro.br (DNS) criar os registros que a Vercel indicar
+   (normalmente `A` → `76.76.21.21` e `CNAME` de `www` → `cname.vercel-dns.com`).
+4. HTTPS é automático.
 
-## 6. Deploy na Vercel
+## 6. Antes de divulgar
 
-1. <https://vercel.com/new> → importar o repositório do GitHub.
-2. **Environment Variables** (Production):
-   | Nome | Valor |
-   |---|---|
-   | `DATABASE_URL` | connection string **pooled** do Neon |
-   | `DIRECT_URL` | connection string **direct** do Neon |
-   | `AUTH_SECRET` | `openssl rand -base64 32` (valor novo!) |
-   | `AUTH_URL` | `https://aguaclaraimoveis.com.br` |
-   | `BLOB_READ_WRITE_TOKEN` | (criado no passo 5, geralmente já vem) |
-3. **Deploy**. A build roda `prisma generate && next build`.
-4. Rodar as migrations no banco de produção (uma vez):
-   `npx prisma migrate deploy` local com o `.env` de produção, **ou**
-   adicionar `prisma migrate deploy` ao script de build.
+- [ ] **Trocar a senha do admin.** O usuário `admin@imobiliaria.com` /
+      `admin123` veio junto na importação dos dados. Trocar via um script
+      pontual (`bcrypt.hash`) rodado contra o Neon, ou pelo Neon SQL Editor.
+- [ ] Conferir se as fotos foram reenviadas.
+- [ ] Testar: cadastrar imóvel → ver na home → gerar um contrato.
 
-## 7. Domínio
+## Rotina depois
 
-1. Vercel → projeto → **Settings → Domains** → adicionar `aguaclaraimoveis.com.br`
-   e `www.aguaclaraimoveis.com.br`.
-2. No **registro.br**, painel de DNS, criar os registros que a Vercel indicar
-   (normalmente um `A` para `76.76.21.21` e um `CNAME` de `www` para
-   `cname.vercel-dns.com`). A propagação leva de minutos a algumas horas.
-3. O HTTPS é emitido automaticamente pela Vercel.
-
-## 8. Antes de divulgar
-
-- [ ] Trocar a senha do admin (`admin@imobiliaria.com` / `admin123`).
-      Rodar o seed com `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` novos **antes**
-      de importar os dados, ou criar/atualizar o usuário direto no banco.
-- [ ] Conferir se todas as fotos foram reenviadas.
-- [ ] Testar: cadastrar um imóvel, ver na home, gerar um contrato.
-
-## Depois: rotina
-
-- Alterou algo no código → `git push` → a Vercel publica em ~1 min.
-- Mudança no schema do banco → `prisma migrate dev` local, commit, push, e
-  `prisma migrate deploy` no banco de produção.
+- Código: `git push` → Vercel publica em ~1 min.
+- Schema do banco: `prisma migrate dev` local (contra um Postgres de dev),
+  commit, push — o `migrate deploy` roda no build e atualiza o Neon.

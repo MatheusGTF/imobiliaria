@@ -104,17 +104,23 @@ manualmente nas sessões anteriores para não apagar esses registros reais.
 - **Portal público**: home com hero + vitrine "O que temos disponível"
   (cards por tipo de imóvel com contagem de disponíveis), listagem `/imoveis`
   com chips de tipo + filtros (cidade/finalidade/quartos/valor), detalhe do
-  imóvel, botão de WhatsApp. Identidade visual da marca **Água Clara Imóveis**
+  imóvel, **página `/contato`** (telefones + WhatsApp, Instagram, endereço com
+  link pro mapa, corretores). Identidade visual da marca **Água Clara Imóveis**
   (paleta rosa `brand-*` + cinza quente `ink-*` em tokens no `globals.css`,
-  títulos em Montserrat).
-  - O **nome e a logo do portal vêm de Configurações** (`Empresa.nome` e
-    `Empresa.logoUrl`), não mais de `NEXT_PUBLIC_SITE_NAME` (removido). Se não
-    houver logo enviada, o cabeçalho usa um ícone de casa SVG nas cores da
-    marca. Para usar a logo real: enviar em `/admin/configuracoes` (vira
-    `.webp` com transparência via sharp).
-  - Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis.ts`.
-  - A home é `export const dynamic = "force-dynamic"` (antes era prerender
-    estático — o estoque ficava congelado na build).
+  títulos em Montserrat, símbolo dos dois telhados em SVG no `Logo.tsx`).
+  - **Tudo do portal vem de Configurações** (`Empresa`): nome fantasia, logo,
+    `telefone`, `telefone2`, `instagram`, `responsavelNome/Creci`,
+    `responsavel2Nome/Creci`, endereço. Não há mais nenhuma env de conteúdo
+    (`NEXT_PUBLIC_SITE_NAME` e `NEXT_PUBLIC_WHATSAPP_NUMBER` removidas). Sem
+    logo enviada, o cabeçalho usa o símbolo SVG dos dois telhados. Logo real:
+    enviar em `/admin/configuracoes` (vira `.webp` com transparência via sharp).
+  - Helpers em `src/lib/format.ts`: `parseInstagram()`, `whatsappLink()`.
+    Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis.ts`.
+  - Home e `/contato` são `export const dynamic = "force-dynamic"` (senão o
+    Next prerenderia estático e o conteúdo ficaria congelado na build).
+  - **Endereço**: o Instagram da imobiliária mostra "Benevenuto Ottoni n 6",
+    mas o banco/contrato têm "Avenida Benevenuto Ottoni, nº 1.475, Centro". Não
+    resolvido — confirmar com o cliente e ajustar em Configurações.
 - **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
   foi só no portal público até agora.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala

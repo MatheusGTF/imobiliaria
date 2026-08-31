@@ -74,7 +74,20 @@ export default async function ConfiguracoesPage() {
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label="CNPJ" name="cnpj" defaultValue={empresa.cnpj ?? ""} />
-            <Input label="Telefone" name="telefone" defaultValue={empresa.telefone ?? ""} />
+            <Input label="Telefone / WhatsApp" name="telefone" defaultValue={empresa.telefone ?? ""} />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input
+              label="Segundo telefone / WhatsApp"
+              name="telefone2"
+              defaultValue={empresa.telefone2 ?? ""}
+            />
+            <Input
+              label="Instagram"
+              name="instagram"
+              defaultValue={empresa.instagram ?? ""}
+              placeholder="@aguaclara.imoveis_"
+            />
           </div>
           <Input label="Endereço completo" name="endereco" defaultValue={empresa.endereco ?? ""} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -88,6 +101,19 @@ export default async function ConfiguracoesPage() {
               label="CRECI do responsável"
               name="responsavelCreci"
               defaultValue={empresa.responsavelCreci ?? ""}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input
+              label="Segundo(a) corretor(a)"
+              name="responsavel2Nome"
+              defaultValue={empresa.responsavel2Nome ?? ""}
+              placeholder="Exibido no portal (opcional)"
+            />
+            <Input
+              label="CRECI do segundo(a)"
+              name="responsavel2Creci"
+              defaultValue={empresa.responsavel2Creci ?? ""}
             />
           </div>
           <Input

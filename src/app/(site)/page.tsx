@@ -50,7 +50,6 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
           <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide ring-1 ring-white/20">
             {empresa.nome}
-            {cidade ? ` · ${cidade}` : ""}
           </p>
           <h1 className="max-w-3xl font-display text-4xl font-extrabold leading-[1.1] sm:text-6xl">
             O seu próximo endereço começa aqui.

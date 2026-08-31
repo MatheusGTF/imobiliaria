@@ -66,8 +66,12 @@ model Empresa {
   cnpj              String?
   endereco          String?
   telefone          String?
+  telefone2         String?  // segundo telefone/WhatsApp de contato
+  instagram         String?  // @usuario ou URL do perfil
   responsavelNome   String?  // corretor(a) que assina pela imobiliária
   responsavelCreci  String?
+  responsavel2Nome  String?  // segundo corretor(a), exibido no portal
+  responsavel2Creci String?
   chavePix          String?
   logoUrl           String?
   updatedAt         DateTime @updatedAt

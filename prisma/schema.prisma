@@ -1,0 +1,174 @@
+// Schema portável: hoje aponta para SQLite (zero setup local).
+// Para produção com PostgreSQL, troque provider = "postgresql" e
+// DATABASE_URL no .env — nenhum model usa recursos exclusivos do SQLite.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN") // ADMIN | CORRETOR
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Proprietario {
+  id            String   @id @default(cuid())
+  nome          String
+  cpfCnpj       String?
+  rg            String?
+  nacionalidade String?  @default("brasileiro(a)")
+  estadoCivil   String?
+  profissao     String?
+  endereco      String?
+  email         String?
+  telefone      String?
+  observacoes   String?
+  imoveis       Imovel[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Inquilino {
+  id            String     @id @default(cuid())
+  tipoPessoa    String     @default("FISICA") // FISICA | JURIDICA
+  nome          String     // nome completo (PF) ou razão social (PJ)
+  cpfCnpj       String?
+  rg            String?
+  nacionalidade String?    @default("brasileiro(a)")
+  estadoCivil   String?
+  profissao     String?
+  representanteLegalNome String? // preenchido quando tipoPessoa = JURIDICA
+  email         String?
+  telefone      String?
+  endereco      String?
+  observacoes   String?
+  contratos     Contrato[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+// Linha única com os dados da imobiliária, usados no cabeçalho/rodapé do
+// portal e para preencher a qualificação da LOCADORA no contrato gerado.
+model Empresa {
+  id                String   @id @default(cuid())
+  nome              String   @default("Imobiliária")
+  cnpj              String?
+  endereco          String?
+  telefone          String?
+  responsavelNome   String?  // corretor(a) que assina pela imobiliária
+  responsavelCreci  String?
+  chavePix          String?
+  logoUrl           String?
+  updatedAt         DateTime @updatedAt
+}
+
+model Imovel {
+  id            String   @id @default(cuid())
+  titulo        String
+  descricao     String?
+  tipo          String   // APARTAMENTO | CASA | COMERCIAL | TERRENO | OUTRO
+  finalidade    String   @default("ALUGUEL") // ALUGUEL | VENDA | AMBOS
+  status        String   @default("DISPONIVEL") // DISPONIVEL | ALUGADO | VENDIDO | INATIVO
+  destaque      Boolean  @default(false)
+
+  cep           String?
+  logradouro    String?
+  numero        String?
+  complemento   String?
+  bairro        String?
+  cidade        String
+  estado        String
+
+  valorAluguel     Float?
+  valorVenda       Float?
+  valorCondominio  Float?
+  valorIptu        Float?
+  areaM2           Float?
+  quartos          Int?
+  banheiros        Int?
+  vagas            Int?
+  mobiliado        Boolean @default(false)
+  aceitaPet        Boolean @default(false)
+
+  // Preenchido quando a venda é concretizada (status = VENDIDO)
+  dataVenda         DateTime?
+  valorVendaFinal   Float?
+  compradorNome     String?
+  compradorContato  String?
+
+  proprietarioId String?
+  proprietario   Proprietario? @relation(fields: [proprietarioId], references: [id])
+
+  fotos     Foto[]
+  contratos Contrato[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Foto {
+  id        String   @id @default(cuid())
+  imovelId  String
+  imovel    Imovel   @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+  url       String
+  ordem     Int      @default(0)
+  capa      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Contrato {
+  id          String   @id @default(cuid())
+  imovelId    String
+  imovel      Imovel   @relation(fields: [imovelId], references: [id])
+  inquilinoId String
+  inquilino   Inquilino @relation(fields: [inquilinoId], references: [id])
+
+  dataInicio  DateTime
+  dataFim     DateTime
+  diaVencimento Int    // dia do mês (1-31) de vencimento do aluguel
+
+  valorAluguel              Float
+  valorCondominio           Float?
+  valorIptu                 Float?
+  taxaAdministracaoPercentual Float? // ex: 10 = 10%
+  valorCaucao               Float?
+  bensInclusos              String? // ex: "02 aparelhos de ar-condicionado"
+
+  status      String   @default("ATIVO") // ATIVO | ENCERRADO | CANCELADO
+  observacoes String?
+
+  pagamentos  Pagamento[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pagamento {
+  id             String    @id @default(cuid())
+  contratoId     String
+  contrato       Contrato  @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  mesReferencia  DateTime  // sempre dia 1 do mês de referência
+  dataVencimento DateTime
+  valorDevido    Float
+  valorPago      Float?
+  dataPagamento  DateTime?
+  formaPagamento String?   // PIX | BOLETO | DINHEIRO | TRANSFERENCIA | OUTRO
+  status         String    @default("PENDENTE") // PENDENTE | PAGO | ATRASADO | CANCELADO
+  observacoes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([contratoId, mesReferencia])
+}

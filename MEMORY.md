@@ -94,9 +94,13 @@ manualmente nas sessões anteriores para não apagar esses registros reais.
   se os dados existirem; a numeração das cláusulas se ajusta sozinha.
 - **Financeiro**: lista de recebíveis por mês/status, marcar como pago,
   editar valor/data/forma de pagamento.
-- **Configurações**: dados da imobiliária (nome, CNPJ, endereço, responsável,
-  CRECI, chave PIX, logo) — usados no cabeçalho/assinatura do contrato
-  gerado e no portal público.
+- **Configurações**: dados da imobiliária (nome fantasia, razão social, CNPJ,
+  endereço, responsável, CRECI, chave PIX, logo). O **nome fantasia**
+  (`Empresa.nome`) aparece no portal e no cabeçalho do contrato; a **razão
+  social** (`Empresa.razaoSocial`, opcional) é usada na qualificação jurídica
+  da LOCADORA no contrato gerado — cai no nome fantasia se estiver vazia.
+  Ex. real: fantasia "Água Clara Imóveis" / razão social "Andressiele Marques
+  Imobiliária".
 - **Portal público**: home, listagem com filtros (cidade/tipo/finalidade/
   quartos/valor), detalhe do imóvel, botão de WhatsApp.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala
@@ -124,3 +128,25 @@ manualmente nas sessões anteriores para não apagar esses registros reais.
    single-tenant vira uma limitação real — precisaria desenhar multi-tenant.
 4. Perguntar ao usuário se os termos fixos do contrato (multa, juros, IGP-M)
    deveriam virar configuráveis por contrato ou por imobiliária.
+5. **Bug conhecido na geração de recebíveis**: `gerarMesesReferencia`
+   (`src/lib/pagamentos.ts`) inclui o mês da `dataFim` mesmo quando o contrato
+   dura exatamente N meses e termina no mesmo dia do mês em que começou. Ex.:
+   contrato de 07/04/2026 a 07/04/2027 ("12 meses") gera **13** parcelas
+   (abr/26 a abr/27), sendo a de abr/27 indevida. O texto do contrato mostra
+   "12 (doze) meses" certo (`mesesEntre` está correto). Contornar excluindo a
+   última parcela no Financeiro, ou corrigir o algoritmo para parar no mês
+   anterior à `dataFim` quando o dia de término ≤ dia de início.
+
+## Contratos reais já cadastrados (modelos usados)
+
+- Contrato Matheus Fioratti Gato (imóvel Av. Julio Maia 4078) — primeiro
+  modelo, base do texto em `contratoTexto.ts` / página do documento.
+- Contrato **Auto Locadora Irigaray Ltda** (imóvel Casa Rua Jorge Amado 20,
+  proprietária Dayane Rosa Peres) — 2º modelo real (PDF assinado). Cadastrado
+  pelo painel em 31/08/2026; validou o campo razão social. Diferenças do PDF
+  que NÃO foram implementadas no gerador (ficam como melhorias futuras):
+  numeração "CLÁUSULA PRIMEIRA" por extenso + seções numeradas, seção "DA
+  GARANTIA" sempre presente ("firmado sem caução"), qualificação completa
+  da proprietária/responsável (nacionalidade, estado civil, endereço),
+  parágrafo "moradia de colaborador" quando o locatário é PJ, bloco de
+  assinatura da LOCATÁRIA PJ com razão social + CNPJ + responsável legal.

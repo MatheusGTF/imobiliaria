@@ -99,8 +99,12 @@ export const empresaSchema = z.object({
   cnpj: optionalString,
   endereco: optionalString,
   telefone: optionalString,
+  telefone2: optionalString,
+  instagram: optionalString,
   responsavelNome: optionalString,
   responsavelCreci: optionalString,
+  responsavel2Nome: optionalString,
+  responsavel2Creci: optionalString,
   chavePix: optionalString,
 });
 

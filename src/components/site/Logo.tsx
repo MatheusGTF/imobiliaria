@@ -4,8 +4,8 @@ import Image from "next/image";
  * Marca da imobiliária no cabeçalho/rodapé do portal.
  *
  * Se houver uma logo enviada em Configurações (empresa.logoUrl), ela é usada.
- * Caso contrário, mostramos um ícone de casa nas cores da marca — assim o
- * cabeçalho nunca fica quebrado. O nome sempre aparece escrito ao lado.
+ * Caso contrário, desenhamos o símbolo dos dois telhados nas cores da marca.
+ * O nome sempre aparece escrito ao lado.
  */
 export function Logo({
   nome,
@@ -31,7 +31,7 @@ export function Logo({
           style={{ height: size, width: "auto" }}
         />
       ) : (
-        <HouseMark size={size} />
+        <TelhadosMark size={size} />
       )}
       <span
         className={`whitespace-nowrap font-display font-extrabold uppercase leading-none tracking-tight ${
@@ -47,14 +47,44 @@ export function Logo({
   );
 }
 
-function HouseMark({ size }: { size: number }) {
+function TelhadosMark({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <path d="M24 6 5 22h6v20h11V30h4v12h11V22h6L24 6Z" fill="var(--color-ink-400)" />
-      <path d="M24 6 43 22h-6v20H26V30h-2v12" fill="var(--color-brand-300)" />
-      <circle cx="20" cy="24" r="1.6" fill="var(--color-brand-500)" />
-      <circle cx="24" cy="24" r="1.6" fill="var(--color-brand-500)" />
-      <circle cx="28" cy="24" r="1.6" fill="var(--color-brand-500)" />
+    <svg
+      width={(size * 74) / 44}
+      height={size}
+      viewBox="0 0 74 44"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* telhado esquerdo (cinza) */}
+      <path
+        d="M4 38 L25 9 L46 38"
+        stroke="var(--color-ink-400)"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* chaminé */}
+      <path
+        d="M33 21 L33 11"
+        stroke="var(--color-ink-400)"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      {/* telhado direito (rosa) */}
+      <path
+        d="M28 38 L49 9 L70 38"
+        stroke="var(--color-brand-300)"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* três marcas */}
+      <g fill="var(--color-ink-400)">
+        <rect x="30" y="27" width="3.5" height="3.5" rx="0.6" />
+        <rect x="36" y="27" width="3.5" height="3.5" rx="0.6" />
+        <rect x="42" y="27" width="3.5" height="3.5" rx="0.6" />
+      </g>
     </svg>
   );
 }

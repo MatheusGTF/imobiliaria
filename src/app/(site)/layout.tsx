@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import { getEmpresa } from "@/lib/empresa";
+import { parseInstagram } from "@/lib/format";
 import { Logo } from "@/components/site/Logo";
-
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+import { InstagramIcon } from "@/components/site/InstagramIcon";
 
 export async function generateMetadata(): Promise<Metadata> {
   const empresa = await getEmpresa();
@@ -19,7 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const empresa = await getEmpresa();
+  const instagram = parseInstagram(empresa.instagram);
   const ano = new Date().getFullYear();
+  const telefones = [empresa.telefone, empresa.telefone2].filter(Boolean) as string[];
+
+  const navLink =
+    "rounded-full px-2.5 py-2 transition-colors hover:bg-brand-50 hover:text-brand-700 sm:px-3";
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -28,35 +32,22 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <Link href="/" aria-label={empresa.nome} className="shrink-0">
             <Logo nome={empresa.nome} logoUrl={empresa.logoUrl} />
           </Link>
-          <nav className="flex items-center gap-0.5 text-sm font-semibold text-ink-600 sm:gap-2">
-            <Link
-              href="/imoveis?finalidade=ALUGUEL"
-              className="rounded-full px-2.5 py-2 transition-colors hover:bg-brand-50 hover:text-brand-700 sm:px-3"
-            >
+          <nav className="flex items-center gap-0.5 text-sm font-semibold text-ink-600 sm:gap-1">
+            <Link href="/imoveis?finalidade=ALUGUEL" className={navLink}>
               Alugar
             </Link>
-            <Link
-              href="/imoveis?finalidade=VENDA"
-              className="rounded-full px-2.5 py-2 transition-colors hover:bg-brand-50 hover:text-brand-700 sm:px-3"
-            >
+            <Link href="/imoveis?finalidade=VENDA" className={navLink}>
               Comprar
             </Link>
-            <Link
-              href="/imoveis"
-              className="hidden rounded-full px-3 py-2 transition-colors hover:bg-brand-50 hover:text-brand-700 sm:block"
-            >
+            <Link href="/imoveis" className={`hidden sm:block ${navLink}`}>
               Todos os imóveis
             </Link>
-            {WHATSAPP && (
-              <a
-                href={`https://wa.me/${WHATSAPP}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-brand-700"
-              >
-                <MessageCircle size={16} /> Contato
-              </a>
-            )}
+            <Link
+              href="/contato"
+              className="rounded-full bg-brand-600 px-3 py-2 text-white transition-colors hover:bg-brand-700 sm:px-4"
+            >
+              Contatos
+            </Link>
           </nav>
         </div>
       </header>
@@ -67,10 +58,22 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-8 text-center text-sm text-ink-500 sm:px-6">
           <Logo nome={empresa.nome} logoUrl={empresa.logoUrl} variant="footer" />
           {empresa.endereco && <p>{empresa.endereco}</p>}
-          {empresa.telefone && <p>Fone: {empresa.telefone}</p>}
+          {telefones.length > 0 && <p>Fone: {telefones.join(" · ")}</p>}
+          {instagram && (
+            <a
+              href={instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-semibold text-brand-600 hover:text-brand-700"
+            >
+              <InstagramIcon size={15} /> {instagram.handle}
+            </a>
+          )}
           <p className="text-ink-400">
             © {ano} {empresa.nome}
-            {empresa.responsavelCreci ? ` · CRECI ${empresa.responsavelCreci}` : ""}. Todos os direitos reservados.
+            {empresa.responsavelCreci ? ` · CRECI ${empresa.responsavelCreci}` : ""}
+            {empresa.responsavel2Creci ? ` · CRECI ${empresa.responsavel2Creci}` : ""}. Todos os
+            direitos reservados.
           </p>
         </div>
       </footer>

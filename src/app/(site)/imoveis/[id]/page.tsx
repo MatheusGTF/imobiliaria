@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/format";
+import { getEmpresa } from "@/lib/empresa";
+import { formatCurrency, whatsappLink } from "@/lib/format";
 import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/constants";
 import { PrecoImovel } from "@/components/PrecoImovel";
 import {
@@ -18,15 +19,16 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-
 export default async function ImovelDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const imovel = await prisma.imovel.findUnique({
-    where: { id },
-    include: { fotos: { orderBy: { ordem: "asc" } } },
-  });
+  const [imovel, empresa] = await Promise.all([
+    prisma.imovel.findUnique({
+      where: { id },
+      include: { fotos: { orderBy: { ordem: "asc" } } },
+    }),
+    getEmpresa(),
+  ]);
 
   if (!imovel || imovel.status === "INATIVO") notFound();
 
@@ -39,7 +41,8 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
       : aceitaVenda(imovel.finalidade) && !aceitaAluguel(imovel.finalidade)
         ? "comprar"
         : "alugar ou comprar";
-  const whatsappMsg = encodeURIComponent(
+  const whatsappUrl = whatsappLink(
+    empresa.telefone,
     `Olá! Tenho interesse em ${interesse} o imóvel "${imovel.titulo}".`,
   );
 
@@ -169,9 +172,9 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
               </p>
             )}
 
-            {WHATSAPP ? (
+            {whatsappUrl ? (
               <a
-                href={`https://wa.me/${WHATSAPP}?text=${whatsappMsg}`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700"
@@ -179,7 +182,12 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
                 <MessageCircle size={18} /> Falar com um corretor
               </a>
             ) : (
-              <p className="mt-4 text-sm text-ink-500">Entre em contato para mais informações.</p>
+              <Link
+                href="/contato"
+                className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700"
+              >
+                <MessageCircle size={18} /> Fale conosco
+              </Link>
             )}
           </div>
         </div>

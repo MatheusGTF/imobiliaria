@@ -12,18 +12,18 @@ export function PrecoImovel({ imovel, className }: { imovel: ImovelPreco; classN
   const mostraVenda = aceitaVenda(imovel.finalidade) && imovel.valorVenda != null;
 
   return (
-    <p className={className ?? "font-semibold text-emerald-700"}>
+    <p className={className ?? "font-semibold text-brand-700"}>
       {mostraAluguel && (
         <>
           {formatCurrency(imovel.valorAluguel)}
-          <span className="text-xs font-normal text-slate-400"> /mês</span>
+          <span className="text-xs font-normal text-ink-400"> /mês</span>
         </>
       )}
-      {mostraAluguel && mostraVenda && <span className="mx-1 text-slate-300">·</span>}
+      {mostraAluguel && mostraVenda && <span className="mx-1 text-ink-300">·</span>}
       {mostraVenda && (
         <>
           {formatCurrency(imovel.valorVenda)}
-          <span className="text-xs font-normal text-slate-400"> à venda</span>
+          <span className="text-xs font-normal text-ink-400"> à venda</span>
         </>
       )}
     </p>

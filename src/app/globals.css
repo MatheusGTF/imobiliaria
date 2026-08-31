@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1b181c;
 }
 
 @theme inline {
@@ -10,12 +10,39 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-montserrat), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme {
+  /* Marca Água Clara Imóveis — rosa da logo */
+  --color-brand-50: #fcf1f4;
+  --color-brand-100: #f8e1e8;
+  --color-brand-200: #f0c5d2;
+  --color-brand-300: #e6a6b9;
+  --color-brand-400: #d67f99;
+  --color-brand-500: #c65d7e;
+  --color-brand-600: #af4066;
+  --color-brand-700: #8f3153;
+  --color-brand-800: #6f2942;
+  --color-brand-900: #451a2a;
+
+  /* Cinza quente da logo — texto e superfícies neutras */
+  --color-ink-50: #f7f6f6;
+  --color-ink-100: #ece9ea;
+  --color-ink-200: #d8d3d5;
+  --color-ink-300: #b6afb2;
+  --color-ink-400: #8c8388;
+  --color-ink-500: #6b6266;
+  --color-ink-600: #514a4e;
+  --color-ink-700: #3e393c;
+  --color-ink-800: #2a262a;
+  --color-ink-900: #1b181c;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 @media print {

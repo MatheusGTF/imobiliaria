@@ -1,10 +1,22 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/constants";
 import { PrecoImovel } from "@/components/PrecoImovel";
-import { Bed, Bath, Car, Ruler, PawPrint, Sofa, Building2, MessageCircle } from "lucide-react";
+import {
+  Bed,
+  Bath,
+  Car,
+  Ruler,
+  PawPrint,
+  Sofa,
+  Building2,
+  MessageCircle,
+  MapPin,
+  ArrowLeft,
+} from "lucide-react";
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
 
@@ -21,27 +33,55 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
   const capa = imovel.fotos.find((f) => f.capa) ?? imovel.fotos[0];
   const outrasFotos = imovel.fotos.filter((f) => f.id !== capa?.id);
 
-  const interesse = aceitaAluguel(imovel.finalidade) && !aceitaVenda(imovel.finalidade)
-    ? "alugar"
-    : aceitaVenda(imovel.finalidade) && !aceitaAluguel(imovel.finalidade)
-      ? "comprar"
-      : "alugar ou comprar";
-  const whatsappMsg = encodeURIComponent(`Olá! Tenho interesse em ${interesse} o imóvel "${imovel.titulo}".`);
+  const interesse =
+    aceitaAluguel(imovel.finalidade) && !aceitaVenda(imovel.finalidade)
+      ? "alugar"
+      : aceitaVenda(imovel.finalidade) && !aceitaAluguel(imovel.finalidade)
+        ? "comprar"
+        : "alugar ou comprar";
+  const whatsappMsg = encodeURIComponent(
+    `Olá! Tenho interesse em ${interesse} o imóvel "${imovel.titulo}".`,
+  );
+
+  const temCaracteristicas =
+    imovel.areaM2 != null ||
+    imovel.quartos != null ||
+    imovel.banheiros != null ||
+    imovel.vagas != null ||
+    imovel.mobiliado ||
+    imovel.aceitaPet;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <Link
+        href="/imoveis"
+        className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-ink-500 hover:text-brand-700"
+      >
+        <ArrowLeft size={16} /> Voltar para a lista
+      </Link>
+
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-slate-100 sm:col-span-3 sm:aspect-auto sm:row-span-2">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-brand-50 sm:col-span-3 sm:row-span-2 sm:aspect-auto">
           {capa ? (
-            <Image src={capa.url} alt={imovel.titulo} fill className="object-cover" sizes="(min-width: 640px) 66vw, 100vw" priority />
+            <Image
+              src={capa.url}
+              alt={imovel.titulo}
+              fill
+              className="object-cover"
+              sizes="(min-width: 640px) 66vw, 100vw"
+              priority
+            />
           ) : (
-            <div className="flex h-full min-h-64 items-center justify-center text-slate-300">
+            <div className="flex h-full min-h-64 items-center justify-center text-brand-200">
               <Building2 size={48} />
             </div>
           )}
         </div>
         {outrasFotos.slice(0, 2).map((foto) => (
-          <div key={foto.id} className="relative hidden aspect-[4/3] overflow-hidden rounded-lg bg-slate-100 sm:block">
+          <div
+            key={foto.id}
+            className="relative hidden aspect-[4/3] overflow-hidden rounded-2xl bg-brand-50 sm:block"
+          >
             <Image src={foto.url} alt="" fill className="object-cover" sizes="25vw" />
           </div>
         ))}
@@ -50,7 +90,10 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
       {outrasFotos.length > 2 && (
         <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
           {outrasFotos.slice(2).map((foto) => (
-            <div key={foto.id} className="relative aspect-square overflow-hidden rounded-md bg-slate-100">
+            <div
+              key={foto.id}
+              className="relative aspect-square overflow-hidden rounded-xl bg-brand-50"
+            >
               <Image src={foto.url} alt="" fill className="object-cover" sizes="150px" />
             </div>
           ))}
@@ -59,61 +102,67 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <span className="text-sm font-medium text-emerald-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
             {labelFor(TIPOS_IMOVEL, imovel.tipo)} · {labelFor(FINALIDADE_IMOVEL, imovel.finalidade)}
           </span>
-          <h1 className="mt-1 text-2xl font-semibold text-slate-900">{imovel.titulo}</h1>
-          <p className="mt-1 text-slate-500">
+          <h1 className="mt-2 font-display text-3xl font-extrabold text-ink-900">{imovel.titulo}</h1>
+          <p className="mt-1 flex items-center gap-1 text-ink-500">
+            <MapPin size={15} />
             {imovel.bairro ? `${imovel.bairro}, ` : ""}
             {imovel.cidade}/{imovel.estado}
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-6 border-y border-slate-200 py-4 text-sm text-slate-600">
-            {imovel.areaM2 != null && (
-              <span className="flex items-center gap-2">
-                <Ruler size={18} /> {imovel.areaM2} m²
-              </span>
-            )}
-            {imovel.quartos != null && (
-              <span className="flex items-center gap-2">
-                <Bed size={18} /> {imovel.quartos} quarto(s)
-              </span>
-            )}
-            {imovel.banheiros != null && (
-              <span className="flex items-center gap-2">
-                <Bath size={18} /> {imovel.banheiros} banheiro(s)
-              </span>
-            )}
-            {imovel.vagas != null && (
-              <span className="flex items-center gap-2">
-                <Car size={18} /> {imovel.vagas} vaga(s)
-              </span>
-            )}
-            {imovel.mobiliado && (
-              <span className="flex items-center gap-2">
-                <Sofa size={18} /> Mobiliado
-              </span>
-            )}
-            {imovel.aceitaPet && (
-              <span className="flex items-center gap-2">
-                <PawPrint size={18} /> Aceita pet
-              </span>
-            )}
-          </div>
+          {temCaracteristicas && (
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 border-y border-ink-100 py-4 text-sm text-ink-600">
+              {imovel.areaM2 != null && (
+                <span className="flex items-center gap-2">
+                  <Ruler size={18} className="text-brand-500" /> {imovel.areaM2} m²
+                </span>
+              )}
+              {imovel.quartos != null && (
+                <span className="flex items-center gap-2">
+                  <Bed size={18} className="text-brand-500" /> {imovel.quartos} quarto(s)
+                </span>
+              )}
+              {imovel.banheiros != null && (
+                <span className="flex items-center gap-2">
+                  <Bath size={18} className="text-brand-500" /> {imovel.banheiros} banheiro(s)
+                </span>
+              )}
+              {imovel.vagas != null && (
+                <span className="flex items-center gap-2">
+                  <Car size={18} className="text-brand-500" /> {imovel.vagas} vaga(s)
+                </span>
+              )}
+              {imovel.mobiliado && (
+                <span className="flex items-center gap-2">
+                  <Sofa size={18} className="text-brand-500" /> Mobiliado
+                </span>
+              )}
+              {imovel.aceitaPet && (
+                <span className="flex items-center gap-2">
+                  <PawPrint size={18} className="text-brand-500" /> Aceita pet
+                </span>
+              )}
+            </div>
+          )}
 
           {imovel.descricao && (
             <div className="mt-6">
-              <h2 className="mb-2 font-medium text-slate-900">Descrição</h2>
-              <p className="whitespace-pre-wrap text-slate-600">{imovel.descricao}</p>
+              <h2 className="mb-2 font-display font-bold text-ink-900">Descrição</h2>
+              <p className="whitespace-pre-wrap leading-relaxed text-ink-600">{imovel.descricao}</p>
             </div>
           )}
         </div>
 
         <div>
-          <div className="sticky top-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            <PrecoImovel imovel={imovel} className="text-2xl font-semibold text-emerald-700" />
+          <div className="sticky top-24 rounded-2xl border border-ink-100 bg-white p-6 shadow-lg">
+            <PrecoImovel
+              imovel={imovel}
+              className="font-display text-2xl font-extrabold text-brand-700"
+            />
             {(imovel.valorCondominio || imovel.valorIptu) && (
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-ink-500">
                 {imovel.valorCondominio ? `Condomínio: ${formatCurrency(imovel.valorCondominio)}` : ""}
                 {imovel.valorCondominio && imovel.valorIptu ? " · " : ""}
                 {imovel.valorIptu ? `IPTU: ${formatCurrency(imovel.valorIptu)}` : ""}
@@ -125,12 +174,12 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
                 href={`https://wa.me/${WHATSAPP}?text=${whatsappMsg}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 flex items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 py-3 font-medium text-white hover:bg-emerald-700"
+                className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-brand-700"
               >
                 <MessageCircle size={18} /> Falar com um corretor
               </a>
             ) : (
-              <p className="mt-4 text-sm text-slate-500">Entre em contato para mais informações.</p>
+              <p className="mt-4 text-sm text-ink-500">Entre em contato para mais informações.</p>
             )}
           </div>
         </div>

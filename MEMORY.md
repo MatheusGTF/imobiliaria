@@ -33,19 +33,18 @@ impresso) foi testado manualmente no navegador.
 
 ## Já tem dados reais no banco (`prisma/dev.db`)
 
-Não é só dado de teste. No banco local atual já existem, inseridos pelo
-usuário real entre uma sessão e outra:
+Não é só dado de teste, e **o cliente adiciona/edita coisas pelo `/admin`
+entre uma sessão e outra** (em set/2026 já eram ~6 imóveis — casas, um
+terreno, um marcado como vendido —, 2 proprietários, 2 inquilinos, 2
+contratos, 1 pagamento quitado). Sempre trate o conteúdo do banco como real.
+Os dados da imobiliária em Configurações (nome fantasia, razão social, CNPJ,
+endereço, telefones, Instagram, corretores, CRECIs, PIX) estão preenchidos.
 
-- 3 imóveis (incluindo um já alugado)
-- 1 inquilino real ([locatário PF])
-- 1 contrato ativo com 14 parcelas geradas
-- Os dados reais da imobiliária em Configurações (nome "Água Clara Imóveis",
-  CNPJ, endereço, corretor(a) responsável, CRECI, chave PIX) — vieram de um
-  PDF de contrato assinado que o usuário enviou como modelo.
+Antes de qualquer migração/deploy, rode **`npm run db:export`** para tirar um
+retrato fresco (`prisma/data-export.json`, gitignored).
 
 **Cuidado ao mexer/testar**: não rode scripts de limpeza genéricos (tipo
-`prisma.imovel.deleteMany()`) sem filtrar por nome/id específico — filtrei
-manualmente nas sessões anteriores para não apagar esses registros reais.
+`prisma.imovel.deleteMany()`) sem filtrar por nome/id específico.
 
 ## Stack e decisões técnicas importantes
 
@@ -144,9 +143,21 @@ manualmente nas sessões anteriores para não apagar esses registros reais.
 
 ## Sugestões de próximos passos
 
-1. **Commitar o projeto no git** (prioridade zero, ver acima).
-2. Decidir hospedagem (Postgres gerenciado + Vercel/Railway/VPS) — ainda não
-   escolhida, ver README.
+1. **Commitar o projeto no git** — feito (ver acima).
+2. **Deploy — EM ANDAMENTO** (set/2026). Decidido: **Vercel + Neon (Postgres) +
+   Vercel Blob** para as fotos. Domínio **aguaclaraimoveis.com.br** (o cliente
+   vai registrar no registro.br com o CNPJ). O código já foi preparado
+   (`src/lib/photos.ts` com Blob, `next.config.ts` remotePatterns, `trustHost`
+   no NextAuth, `postinstall` do Prisma, scripts `db:export`/`db:import`,
+   `prisma/export-data.ts` + `import-data.ts`). **Falta**: criar o repo no
+   GitHub e dar push; trocar `schema.prisma` para `postgresql` + `directUrl`
+   quando houver a URL do Neon; regenerar migrations; importar os dados;
+   configurar env vars e domínio na Vercel; **trocar a senha do admin**
+   (`admin123`). Passo a passo completo em **`DEPLOY.md`**.
+   - As fotos em `public/uploads/` só existem no disco local — vão precisar ser
+     reenviadas pelo `/admin` depois do deploy.
+   - `npm run build` local falha com EPERM se o `next dev` estiver rodando
+     (DLL do Prisma travada) — é só no Windows, não afeta a Vercel.
 3. Se for demonstrar/vender esse sistema para outras imobiliárias, o
    single-tenant vira uma limitação real — precisaria desenhar multi-tenant.
 4. Perguntar ao usuário se os termos fixos do contrato (multa, juros, IGP-M)

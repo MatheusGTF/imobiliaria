@@ -59,7 +59,19 @@ export default async function ConfiguracoesPage() {
       <Card>
         <h2 className="mb-4 text-lg font-medium text-slate-900">Dados cadastrais</h2>
         <form action={updateEmpresa} className="space-y-4">
-          <Input label="Nome / razão social" name="nome" defaultValue={empresa.nome} required />
+          <Input
+            label="Nome fantasia"
+            name="nome"
+            defaultValue={empresa.nome}
+            placeholder="Nome usado no portal público"
+            required
+          />
+          <Input
+            label="Razão social"
+            name="razaoSocial"
+            defaultValue={empresa.razaoSocial ?? ""}
+            placeholder="Nome jurídico usado na qualificação da LOCADORA no contrato"
+          />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label="CNPJ" name="cnpj" defaultValue={empresa.cnpj ?? ""} />
             <Input label="Telefone" name="telefone" defaultValue={empresa.telefone ?? ""} />

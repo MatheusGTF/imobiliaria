@@ -95,6 +95,7 @@ export const inquilinoSchema = z.object({
 
 export const empresaSchema = z.object({
   nome: z.string().min(2, "Informe o nome da imobiliária"),
+  razaoSocial: optionalString,
   cnpj: optionalString,
   endereco: optionalString,
   telefone: optionalString,

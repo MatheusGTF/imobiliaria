@@ -35,7 +35,7 @@ export function finalidadeUso(tipo: string) {
 
 export function qualificacaoEmpresa(empresa: Empresa) {
   return juntar([
-    empresa.nome,
+    empresa.razaoSocial || empresa.nome,
     "pessoa jurídica de direito privado",
     empresa.cnpj ? `inscrita no CNPJ sob o nº ${empresa.cnpj}` : null,
     empresa.endereco ? `com sede localizada em ${empresa.endereco}` : null,

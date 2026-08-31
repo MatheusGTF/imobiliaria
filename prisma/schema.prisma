@@ -61,7 +61,8 @@ model Inquilino {
 // portal e para preencher a qualificação da LOCADORA no contrato gerado.
 model Empresa {
   id                String   @id @default(cuid())
-  nome              String   @default("Imobiliária")
+  nome              String   @default("Imobiliária") // nome fantasia, usado no portal
+  razaoSocial       String?  // razão social, usada na qualificação da LOCADORA no contrato
   cnpj              String?
   endereco          String?
   telefone          String?

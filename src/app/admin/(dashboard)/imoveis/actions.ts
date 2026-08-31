@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { imovelSchema, vendaSchema } from "@/lib/validations";
 import { saveUploadedPhoto, deletePhotoFile } from "@/lib/photos";
 import { aceitaAluguel, aceitaVenda } from "@/lib/constants";
+import { revalidarPortal } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -32,6 +33,7 @@ export async function createImovel(formData: FormData) {
   const imovel = await prisma.imovel.create({ data });
 
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   redirect(`/admin/imoveis/${imovel.id}`);
 }
 
@@ -41,6 +43,7 @@ export async function updateImovel(id: string, formData: FormData) {
   await prisma.imovel.update({ where: { id }, data });
 
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   revalidatePath(`/admin/imoveis/${id}`);
 }
 
@@ -64,6 +67,7 @@ export async function marcarVendido(id: string, formData: FormData) {
   });
 
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   revalidatePath(`/admin/imoveis/${id}`);
 }
 
@@ -82,6 +86,7 @@ export async function reabrirAnuncio(formData: FormData) {
   });
 
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   revalidatePath(`/admin/imoveis/${id}`);
 }
 
@@ -101,6 +106,7 @@ export async function deleteImovel(formData: FormData) {
   await prisma.imovel.delete({ where: { id } });
 
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   redirect("/admin/imoveis");
 }
 
@@ -125,6 +131,7 @@ export async function uploadFotos(imovelId: string, formData: FormData) {
   }
 
   revalidatePath(`/admin/imoveis/${imovelId}`);
+  revalidarPortal();
 }
 
 export async function deleteFoto(formData: FormData) {
@@ -148,6 +155,7 @@ export async function deleteFoto(formData: FormData) {
   }
 
   revalidatePath(`/admin/imoveis/${imovelId}`);
+  revalidarPortal();
 }
 
 export async function setFotoCapa(formData: FormData) {
@@ -158,6 +166,7 @@ export async function setFotoCapa(formData: FormData) {
   await prisma.foto.update({ where: { id }, data: { capa: true } });
 
   revalidatePath(`/admin/imoveis/${imovelId}`);
+  revalidarPortal();
 }
 
 export async function moveFoto(formData: FormData) {
@@ -180,4 +189,5 @@ export async function moveFoto(formData: FormData) {
   ]);
 
   revalidatePath(`/admin/imoveis/${imovelId}`);
+  revalidarPortal();
 }

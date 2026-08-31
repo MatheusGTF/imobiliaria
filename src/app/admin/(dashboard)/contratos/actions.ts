@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { contratoSchema } from "@/lib/validations";
 import { gerarMesesReferencia, calcularDataVencimento } from "@/lib/pagamentos";
+import { revalidarPortal } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -54,6 +55,7 @@ export async function createContrato(formData: FormData) {
 
   revalidatePath("/admin/contratos");
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   redirect(`/admin/contratos/${contrato.id}/documento`);
 }
 
@@ -80,6 +82,7 @@ export async function encerrarContrato(formData: FormData) {
   revalidatePath("/admin/contratos");
   revalidatePath(`/admin/contratos/${id}`);
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
 }
 
 export async function deleteContrato(formData: FormData) {
@@ -107,5 +110,6 @@ export async function deleteContrato(formData: FormData) {
 
   revalidatePath("/admin/contratos");
   revalidatePath("/admin/imoveis");
+  revalidarPortal();
   redirect("/admin/contratos");
 }

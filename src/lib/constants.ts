@@ -1,10 +1,13 @@
 export const TIPOS_IMOVEL = [
-  { value: "APARTAMENTO", label: "Apartamento" },
-  { value: "CASA", label: "Casa" },
-  { value: "COMERCIAL", label: "Comercial" },
-  { value: "TERRENO", label: "Terreno" },
-  { value: "OUTRO", label: "Outro" },
+  { value: "APARTAMENTO", label: "Apartamento", plural: "Apartamentos" },
+  { value: "CASA", label: "Casa", plural: "Casas" },
+  { value: "COMERCIAL", label: "Comercial", plural: "Imóveis comerciais" },
+  { value: "TERRENO", label: "Terreno", plural: "Terrenos" },
+  { value: "OUTRO", label: "Outro", plural: "Outros imóveis" },
 ] as const;
+
+// Ordem em que os tipos aparecem na vitrine "consulte por tipo"
+export const TIPOS_VITRINE = ["CASA", "APARTAMENTO", "TERRENO", "COMERCIAL", "OUTRO"] as const;
 
 export const FINALIDADE_IMOVEL = [
   { value: "ALUGUEL", label: "Aluguel" },

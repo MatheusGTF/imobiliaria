@@ -69,8 +69,11 @@ Veja `.env.example`. As principais:
 
 - `DATABASE_URL` — conexão do banco
 - `AUTH_SECRET` — chave usada pelo NextAuth para assinar sessões (gere uma nova em produção)
-- `NEXT_PUBLIC_SITE_NAME` — nome exibido no portal público
 - `NEXT_PUBLIC_WHATSAPP_NUMBER` — número para o botão de contato (formato `55DDD9XXXXXXXX`, só números)
+
+O nome e a logo exibidos no portal público são configurados em **Configurações**
+no painel `/admin` (campo "Nome fantasia" e upload de logo), não por variável de
+ambiente.
 
 ## Decisões de escopo (v1)
 

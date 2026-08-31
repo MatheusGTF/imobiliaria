@@ -6,10 +6,14 @@ import { randomUUID } from "crypto";
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_WIDTH = 1920;
 
-// Em produção (Vercel) o sistema de arquivos é efêmero: as fotos precisam ir
-// para o Vercel Blob. Basta a env BLOB_READ_WRITE_TOKEN estar presente.
-// Em desenvolvimento, sem o token, as fotos ficam em public/uploads como antes.
-const usarBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
+// Na Vercel o sistema de arquivos é somente-leitura: as fotos vão para o
+// Vercel Blob. A autenticação é automática (OIDC) quando o Blob Store está
+// conectado ao projeto — não existe mais BLOB_READ_WRITE_TOKEN por padrão.
+// Em desenvolvimento local, as fotos ficam em public/uploads.
+const usarBlob =
+  !!process.env.VERCEL ||
+  !!process.env.BLOB_READ_WRITE_TOKEN ||
+  !!process.env.BLOB_STORE_ID;
 
 async function processarWebp(file: File): Promise<Buffer> {
   const bytes = Buffer.from(await file.arrayBuffer());
@@ -29,6 +33,7 @@ export async function saveUploadedPhoto(file: File): Promise<string> {
     const { url } = await put(`uploads/${filename}`, webp, {
       access: "public",
       contentType: "image/webp",
+      addRandomSuffix: false,
     });
     return url; // URL https completa, guardada no banco
   }

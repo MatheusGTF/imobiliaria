@@ -101,8 +101,22 @@ manualmente nas sessões anteriores para não apagar esses registros reais.
   da LOCADORA no contrato gerado — cai no nome fantasia se estiver vazia.
   Ex. real: fantasia "Água Clara Imóveis" / razão social "Andressiele Marques
   Imobiliária".
-- **Portal público**: home, listagem com filtros (cidade/tipo/finalidade/
-  quartos/valor), detalhe do imóvel, botão de WhatsApp.
+- **Portal público**: home com hero + vitrine "O que temos disponível"
+  (cards por tipo de imóvel com contagem de disponíveis), listagem `/imoveis`
+  com chips de tipo + filtros (cidade/finalidade/quartos/valor), detalhe do
+  imóvel, botão de WhatsApp. Identidade visual da marca **Água Clara Imóveis**
+  (paleta rosa `brand-*` + cinza quente `ink-*` em tokens no `globals.css`,
+  títulos em Montserrat).
+  - O **nome e a logo do portal vêm de Configurações** (`Empresa.nome` e
+    `Empresa.logoUrl`), não mais de `NEXT_PUBLIC_SITE_NAME` (removido). Se não
+    houver logo enviada, o cabeçalho usa um ícone de casa SVG nas cores da
+    marca. Para usar a logo real: enviar em `/admin/configuracoes` (vira
+    `.webp` com transparência via sharp).
+  - Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis.ts`.
+  - A home é `export const dynamic = "force-dynamic"` (antes era prerender
+    estático — o estoque ficava congelado na build).
+- **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
+  foi só no portal público até agora.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala
   dependências, aplica migrações, roda seed, abre o navegador).
 

@@ -6,6 +6,8 @@ import { TIPOS_IMOVEL, TIPOS_VITRINE } from "@/lib/constants";
 import { contarDisponiveisPorTipo } from "@/lib/imoveis";
 import type { Prisma } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 type Filtros = {
   cidade?: string;
   tipo?: string;

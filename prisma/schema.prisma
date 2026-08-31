@@ -1,14 +1,17 @@
-// Schema portável: hoje aponta para SQLite (zero setup local).
-// Para produção com PostgreSQL, troque provider = "postgresql" e
-// DATABASE_URL no .env — nenhum model usa recursos exclusivos do SQLite.
+// PostgreSQL (produção na Vercel + Neon). Nenhum model usa recursos
+// exclusivos de um banco específico. Para rodar localmente é preciso um
+// Postgres — ver DEPLOY.md.
+//   DATABASE_URL = conexão pooled (app)
+//   DIRECT_URL   = conexão direta (migrations)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {

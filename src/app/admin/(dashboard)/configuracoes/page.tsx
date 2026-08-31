@@ -1,0 +1,94 @@
+import Image from "next/image";
+import { getEmpresa } from "@/lib/empresa";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
+import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { updateEmpresa, removerLogo } from "./actions";
+
+export default async function ConfiguracoesPage() {
+  const empresa = await getEmpresa();
+
+  return (
+    <div className="max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">Configurações da imobiliária</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Esses dados aparecem no portal público e são usados para preencher a
+          qualificação da LOCADORA nos contratos gerados.
+        </p>
+      </div>
+
+      <Card>
+        <h2 className="mb-4 text-lg font-medium text-slate-900">Logo</h2>
+        <div className="flex items-center gap-4">
+          {empresa.logoUrl ? (
+            <Image
+              src={empresa.logoUrl}
+              alt="Logo da imobiliária"
+              width={96}
+              height={96}
+              className="rounded-md border border-slate-200 object-contain p-2"
+            />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-md border border-dashed border-slate-300 text-xs text-slate-400">
+              Sem logo
+            </div>
+          )}
+          <form action={updateEmpresa} className="flex items-center gap-3">
+            <input
+              type="file"
+              name="logo"
+              accept="image/*"
+              className="text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-slate-200"
+            />
+            <Button type="submit" size="sm" variant="secondary">
+              Enviar logo
+            </Button>
+          </form>
+          {empresa.logoUrl && (
+            <form action={removerLogo}>
+              <ConfirmButton size="sm" variant="danger" confirmMessage="Remover a logo atual?">
+                Remover
+              </ConfirmButton>
+            </form>
+          )}
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-4 text-lg font-medium text-slate-900">Dados cadastrais</h2>
+        <form action={updateEmpresa} className="space-y-4">
+          <Input label="Nome / razão social" name="nome" defaultValue={empresa.nome} required />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input label="CNPJ" name="cnpj" defaultValue={empresa.cnpj ?? ""} />
+            <Input label="Telefone" name="telefone" defaultValue={empresa.telefone ?? ""} />
+          </div>
+          <Input label="Endereço completo" name="endereco" defaultValue={empresa.endereco ?? ""} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input
+              label="Corretor(a) responsável"
+              name="responsavelNome"
+              defaultValue={empresa.responsavelNome ?? ""}
+              placeholder="Nome de quem assina pela imobiliária"
+            />
+            <Input
+              label="CRECI do responsável"
+              name="responsavelCreci"
+              defaultValue={empresa.responsavelCreci ?? ""}
+            />
+          </div>
+          <Input
+            label="Chave PIX para recebimento dos aluguéis"
+            name="chavePix"
+            defaultValue={empresa.chavePix ?? ""}
+            placeholder="CNPJ, telefone, email ou chave aleatória"
+          />
+          <div className="flex justify-end">
+            <Button type="submit">Salvar</Button>
+          </div>
+        </form>
+      </Card>
+    </div>
+  );
+}

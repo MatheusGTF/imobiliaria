@@ -144,20 +144,30 @@ retrato fresco (`prisma/data-export.json`, gitignored).
 ## Sugestões de próximos passos
 
 1. **Commitar o projeto no git** — feito (ver acima).
-2. **Deploy — EM ANDAMENTO** (set/2026). Decidido: **Vercel + Neon (Postgres) +
-   Vercel Blob** para as fotos. Domínio **aguaclaraimoveis.com.br** (o cliente
-   vai registrar no registro.br com o CNPJ). O código já foi preparado
-   (`src/lib/photos.ts` com Blob, `next.config.ts` remotePatterns, `trustHost`
-   no NextAuth, `postinstall` do Prisma, scripts `db:export`/`db:import`,
-   `prisma/export-data.ts` + `import-data.ts`). **Falta**: criar o repo no
-   GitHub e dar push; trocar `schema.prisma` para `postgresql` + `directUrl`
-   quando houver a URL do Neon; regenerar migrations; importar os dados;
-   configurar env vars e domínio na Vercel; **trocar a senha do admin**
-   (`admin123`). Passo a passo completo em **`DEPLOY.md`**.
-   - As fotos em `public/uploads/` só existem no disco local — vão precisar ser
-     reenviadas pelo `/admin` depois do deploy.
-   - `npm run build` local falha com EPERM se o `next dev` estiver rodando
-     (DLL do Prisma travada) — é só no Windows, não afeta a Vercel.
+2. **Deploy — NO AR** (31/08/2026). **Vercel + Neon (Postgres) + Vercel Blob**.
+   - Repo: <https://github.com/MatheusGTF/imobiliaria> (branch `main`, **público**).
+     Push → deploy automático.
+   - Time/projeto Vercel: `fiotec1` / `imobiliaria`.
+   - **URL de produção atual**: `https://imobiliaria-ashen-delta.vercel.app`
+     (portal) e `/admin` (painel). Vira `aguaclaraimoveis.com.br` quando o DNS
+     propagar.
+   - **Domínio** `aguaclaraimoveis.com.br` registrado no registro.br (CNPJ) e
+     adicionado na Vercel. DNS **pendente** — em 31/08 o domínio ainda estava
+     "em transição" (~2h). Registros a adicionar na zona DNS do registro.br
+     (Modo Avançado): `A` nome vazio → `216.198.79.1`; `CNAME` nome `www` →
+     `bfcea31a14102d4a.vercel-dns-017.com.` (o registro.br não aceita `@`).
+   - Neon e Blob conectados pela integração da Vercel. O schema usa
+     `POSTGRES_PRISMA_URL` (pooled) e `DATABASE_URL_UNPOOLED` (direct).
+     `AUTH_SECRET` foi definido manualmente nas env vars da Vercel.
+   - Dados migrados: `npm run db:export` (do dev.db) → `npm run db:import`
+     (no Neon). Migration `prisma/migrations/0_init` roda no build da Vercel.
+   - **Senha do admin trocada** da default. Credenciais atuais na memória
+     privada do projeto (fora do repo, que é público).
+   - **Falta ainda**: DNS propagar; **reenviar as 3 fotos** dos imóveis pelo
+     `/admin` (as URLs `/uploads/*` importadas apontam pra arquivos que não
+     existem na Vercel — os cards mostram placeholder até lá).
+   - Dev local agora exige Postgres. `npm run build` local falha com EPERM se o
+     `next dev` estiver rodando (DLL do Prisma travada) — só no Windows.
 3. Se for demonstrar/vender esse sistema para outras imobiliárias, o
    single-tenant vira uma limitação real — precisaria desenhar multi-tenant.
 4. Perguntar ao usuário se os termos fixos do contrato (multa, juros, IGP-M)

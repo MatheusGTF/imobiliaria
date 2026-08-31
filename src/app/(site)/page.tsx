@@ -15,24 +15,16 @@ export default async function HomePage() {
     contarDisponiveisPorTipo(),
   ]);
 
-  const destaques = await prisma.imovel.findMany({
-    where: { status: "DISPONIVEL", destaque: true },
+  // Sempre mostra os imóveis disponíveis, com os marcados como "destaque"
+  // primeiro. Antes, ter 1 destaque escondia todo o resto da vitrine.
+  const imoveis = await prisma.imovel.findMany({
+    where: { status: "DISPONIVEL" },
     include: { fotos: { where: { capa: true }, take: 1 } },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ destaque: "desc" }, { createdAt: "desc" }],
     take: 6,
   });
 
-  const recentes =
-    destaques.length > 0
-      ? []
-      : await prisma.imovel.findMany({
-          where: { status: "DISPONIVEL" },
-          include: { fotos: { where: { capa: true }, take: 1 } },
-          orderBy: { createdAt: "desc" },
-          take: 6,
-        });
-
-  const imoveis = destaques.length > 0 ? destaques : recentes;
+  const temDestaque = imoveis.some((i) => i.destaque);
   const cidade = empresa.endereco?.match(/,\s*([^,/]+)\/[A-Z]{2}/)?.[1]?.trim();
 
   return (
@@ -102,11 +94,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Destaques */}
+      {/* Vitrine */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="mb-6 font-display text-2xl font-bold text-ink-900">
-          {destaques.length > 0 ? "Imóveis em destaque" : "Últimos imóveis cadastrados"}
-        </h2>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-2">
+          <h2 className="font-display text-2xl font-bold text-ink-900">
+            {temDestaque ? "Imóveis em destaque" : "Imóveis disponíveis"}
+          </h2>
+          {total > imoveis.length && (
+            <Link
+              href="/imoveis"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700"
+            >
+              Ver todos os {total} <ArrowRight size={16} />
+            </Link>
+          )}
+        </div>
 
         {imoveis.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-ink-200 py-16 text-center text-ink-400">

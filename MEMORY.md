@@ -17,13 +17,15 @@ atua com **locação e venda** de imóveis:
   recebíveis mensais e do contrato pronto para impressão/assinatura),
   controle financeiro manual e configurações da imobiliária.
 
-## Estado atual: funcional e testado, mas **nada commitado no git**
+## Estado atual: funcional, testado e commitado no git
 
-O repositório só tem o commit inicial do `create-next-app`
-(`80fd11d Initial commit from Create Next App`). Todo o sistema (schema,
-páginas, actions, etc.) foi construído em cima disso e está **sem commit**.
-Antes de mais nada, revise `git status` e faça o primeiro commit real do
-projeto — senão qualquer `git reset`/`checkout` descuidado perde tudo.
+Todo o sistema (schema, páginas, actions, etc.) foi construído em cima do
+commit inicial do `create-next-app` e ficou muito tempo **sem commit**. Isso
+foi resolvido: o primeiro commit real do projeto é
+`47106a9 Implementa sistema de gestão da imobiliária (portal + painel admin)`.
+A partir daqui, trabalhe com commits normais. O banco (`prisma/dev.db`) e as
+fotos (`public/uploads/`) continuam **fora do versionamento** de propósito —
+cuidado ao trocar de máquina.
 
 Rodei `npm run build` e `npm run lint` limpos como última verificação (sem
 erros). O fluxo completo (cadastro → contrato → recebíveis → documento

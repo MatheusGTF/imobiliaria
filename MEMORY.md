@@ -118,9 +118,12 @@ manualmente nas sessões anteriores para não apagar esses registros reais.
     Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis.ts`.
   - Home e `/contato` são `export const dynamic = "force-dynamic"` (senão o
     Next prerenderia estático e o conteúdo ficaria congelado na build).
-  - **Endereço**: o Instagram da imobiliária mostra "Benevenuto Ottoni n 6",
-    mas o banco/contrato têm "Avenida Benevenuto Ottoni, nº 1.475, Centro". Não
-    resolvido — confirmar com o cliente e ajustar em Configurações.
+  - **Endereço**: o cliente confirmou (31/08/2026) que o certo é
+    **"Avenida Benevenuto Ottoni, nº 6, Água Clara/MS"** — já gravado em
+    Configurações. O "nº 1.475, Centro" que aparecia no PDF de contrato usado
+    como modelo estava errado/desatualizado. Como o documento de contrato é
+    gerado a partir de `Empresa.endereco`, contratos gerados de agora em diante
+    (e o do Irigaray, se regerado) saem com o nº 6.
 - **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
   foi só no portal público até agora.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala

@@ -4,10 +4,12 @@ import { randomUUID } from "crypto";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
-// Na Vercel o sistema de arquivos é somente-leitura → grava no Vercel Blob
-// (autenticação automática por OIDC, com BLOB_STORE_ID). Em dev local, grava
-// em public/uploads. As imagens já chegam aqui pequenas: são redimensionadas
-// e convertidas para .webp no navegador (src/lib/imageResize.ts).
+// Na Vercel o sistema de arquivos é somente-leitura → as fotos vão pro Vercel
+// Blob (store privado; autenticação por OIDC via BLOB_STORE_ID). Como o store
+// é privado, as imagens são servidas pela rota /f/[...path] (que usa o token
+// do servidor). Em dev local, grava em public/uploads e serve estático.
+// As imagens já chegam pequenas: são redimensionadas para .webp no navegador
+// (src/lib/imageResize.ts).
 const usarBlob =
   !!process.env.VERCEL ||
   !!process.env.BLOB_READ_WRITE_TOKEN ||
@@ -20,12 +22,12 @@ export async function saveUploadedPhoto(file: File): Promise<string> {
 
   if (usarBlob) {
     const { put } = await import("@vercel/blob");
-    const { url } = await put(`uploads/${filename}`, bytes, {
-      access: "public",
+    const { pathname } = await put(`uploads/${filename}`, bytes, {
+      access: "private",
       contentType: file.type || "image/webp",
       addRandomSuffix: false,
     });
-    return url;
+    return `/f/${pathname}`; // servido pela rota src/app/f/[...path]/route.ts
   }
 
   await mkdir(UPLOAD_DIR, { recursive: true });
@@ -34,16 +36,28 @@ export async function saveUploadedPhoto(file: File): Promise<string> {
 }
 
 /**
- * Apaga uma foto do storage. URLs `https://...` são do Vercel Blob;
- * `/uploads/...` são arquivos locais legados.
+ * Apaga uma foto do storage.
+ *  - `/f/uploads/...`  → blob privado (por pathname)
+ *  - `https://...`     → blob legado (por URL)
+ *  - `/uploads/...`    → arquivo local legado
  */
 export async function deletePhotoFile(url: string): Promise<void> {
+  if (url.startsWith("/f/")) {
+    try {
+      const { del } = await import("@vercel/blob");
+      await del(url.slice(3)); // "uploads/xyz.webp"
+    } catch {
+      // já pode ter sido removida — ignora
+    }
+    return;
+  }
+
   if (/^https?:\/\//.test(url)) {
     try {
       const { del } = await import("@vercel/blob");
       await del(url);
     } catch {
-      // já pode ter sido removida — ignora
+      /* ignora */
     }
     return;
   }
@@ -52,6 +66,6 @@ export async function deletePhotoFile(url: string): Promise<void> {
   try {
     await unlink(path.join(process.cwd(), "public", url));
   } catch {
-    // arquivo já pode ter sido removido — ignora
+    /* ignora */
   }
 }

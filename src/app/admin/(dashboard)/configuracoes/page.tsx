@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { UploadLogo } from "@/components/admin/UploadLogo";
 import { updateEmpresa, removerLogo } from "./actions";
 
 export default async function ConfiguracoesPage() {
@@ -35,17 +36,7 @@ export default async function ConfiguracoesPage() {
               Sem logo
             </div>
           )}
-          <form action={updateEmpresa} className="flex items-center gap-3">
-            <input
-              type="file"
-              name="logo"
-              accept="image/*"
-              className="text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-slate-200"
-            />
-            <Button type="submit" size="sm" variant="secondary">
-              Enviar logo
-            </Button>
-          </form>
+          <UploadLogo />
           {empresa.logoUrl && (
             <form action={removerLogo}>
               <ConfirmButton size="sm" variant="danger" confirmMessage="Remover a logo atual?">

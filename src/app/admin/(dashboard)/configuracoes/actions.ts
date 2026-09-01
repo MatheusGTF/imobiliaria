@@ -14,18 +14,25 @@ export async function updateEmpresa(formData: FormData) {
   }
 
   const empresa = await getEmpresa();
-
-  const logo = formData.get("logo") as File | null;
-  let logoUrl = empresa.logoUrl;
-  if (logo && logo.size > 0) {
-    if (logoUrl) await deletePhotoFile(logoUrl);
-    logoUrl = await saveUploadedPhoto(logo);
-  }
-
   await prisma.empresa.update({
     where: { id: empresa.id },
-    data: { ...parsed.data, logoUrl },
+    data: parsed.data,
   });
+
+  revalidatePath("/admin/configuracoes");
+  revalidatePath("/", "layout");
+}
+
+/** Recebe a logo já redimensionada (.webp pequeno) do navegador. */
+export async function salvarLogo(formData: FormData) {
+  const file = formData.get("logo") as File | null;
+  if (!file || file.size === 0) return;
+
+  const empresa = await getEmpresa();
+  if (empresa.logoUrl) await deletePhotoFile(empresa.logoUrl);
+
+  const url = await saveUploadedPhoto(file);
+  await prisma.empresa.update({ where: { id: empresa.id }, data: { logoUrl: url } });
 
   revalidatePath("/admin/configuracoes");
   revalidatePath("/", "layout");

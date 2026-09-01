@@ -1,55 +1,49 @@
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
-import sharp from "sharp";
 import { randomUUID } from "crypto";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
-const MAX_WIDTH = 1920;
 
-// Na Vercel o sistema de arquivos é somente-leitura: as fotos vão para o
-// Vercel Blob. A autenticação é automática (OIDC) quando o Blob Store está
-// conectado ao projeto — não existe mais BLOB_READ_WRITE_TOKEN por padrão.
-// Em desenvolvimento local, as fotos ficam em public/uploads.
+// Na Vercel o sistema de arquivos é somente-leitura → grava no Vercel Blob
+// (autenticação automática por OIDC, com BLOB_STORE_ID). Em dev local, grava
+// em public/uploads. As imagens já chegam aqui pequenas: são redimensionadas
+// e convertidas para .webp no navegador (src/lib/imageResize.ts).
 const usarBlob =
   !!process.env.VERCEL ||
   !!process.env.BLOB_READ_WRITE_TOKEN ||
   !!process.env.BLOB_STORE_ID;
 
-async function processarWebp(file: File): Promise<Buffer> {
-  const bytes = Buffer.from(await file.arrayBuffer());
-  return sharp(bytes)
-    .rotate()
-    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
-    .webp({ quality: 82 })
-    .toBuffer();
-}
-
 export async function saveUploadedPhoto(file: File): Promise<string> {
-  const webp = await processarWebp(file);
-  const filename = `${randomUUID()}.webp`;
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const ext = file.type === "image/webp" ? "webp" : file.name.split(".").pop() || "jpg";
+  const filename = `${randomUUID()}.${ext}`;
 
   if (usarBlob) {
     const { put } = await import("@vercel/blob");
-    const { url } = await put(`uploads/${filename}`, webp, {
+    const { url } = await put(`uploads/${filename}`, bytes, {
       access: "public",
-      contentType: "image/webp",
+      contentType: file.type || "image/webp",
       addRandomSuffix: false,
     });
-    return url; // URL https completa, guardada no banco
+    return url;
   }
 
   await mkdir(UPLOAD_DIR, { recursive: true });
-  await writeFile(path.join(UPLOAD_DIR, filename), webp);
+  await writeFile(path.join(UPLOAD_DIR, filename), bytes);
   return `/uploads/${filename}`;
 }
 
+/**
+ * Apaga uma foto do storage. URLs `https://...` são do Vercel Blob;
+ * `/uploads/...` são arquivos locais legados.
+ */
 export async function deletePhotoFile(url: string): Promise<void> {
   if (/^https?:\/\//.test(url)) {
     try {
       const { del } = await import("@vercel/blob");
       await del(url);
     } catch {
-      // já pode ter sido removido — ignora
+      // já pode ter sido removida — ignora
     }
     return;
   }

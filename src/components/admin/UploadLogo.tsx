@@ -1,21 +1,21 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { resizeToWebp } from "@/lib/imageResize";
 import { salvarLogo } from "@/app/admin/(dashboard)/configuracoes/actions";
 
 export function UploadLogo() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
 
   async function enviar() {
     const file = inputRef.current?.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setErro("Escolha um arquivo primeiro.");
+      return;
+    }
 
     setEnviando(true);
     setErro(null);
@@ -23,9 +23,12 @@ export function UploadLogo() {
       const otimizada = await resizeToWebp(file, 600, 0.9);
       const fd = new FormData();
       fd.append("logo", otimizada);
-      await salvarLogo(fd);
-      if (inputRef.current) inputRef.current.value = "";
-      startTransition(() => router.refresh());
+      const res = await salvarLogo(fd);
+      if ("error" in res) {
+        setErro(res.error);
+        return;
+      }
+      window.location.reload();
     } catch (e) {
       setErro((e as Error).message || "Falha no envio. Tente novamente.");
     } finally {

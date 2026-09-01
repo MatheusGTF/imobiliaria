@@ -115,19 +115,27 @@ export async function deleteImovel(formData: FormData) {
  * .webp antes de enviar (ver src/components/admin/UploadFotos.tsx), então o
  * arquivo que chega aqui é pequeno. É chamada uma vez por foto.
  */
-export async function adicionarFoto(imovelId: string, formData: FormData) {
-  const file = formData.get("foto") as File | null;
-  if (!file || file.size === 0) return;
+export async function adicionarFoto(
+  imovelId: string,
+  formData: FormData,
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const file = formData.get("foto") as File | null;
+    if (!file || file.size === 0) return { error: "Arquivo vazio." };
 
-  const url = await saveUploadedPhoto(file);
-  const count = await prisma.foto.count({ where: { imovelId } });
+    const url = await saveUploadedPhoto(file);
+    const count = await prisma.foto.count({ where: { imovelId } });
 
-  await prisma.foto.create({
-    data: { imovelId, url, ordem: count, capa: count === 0 },
-  });
+    await prisma.foto.create({
+      data: { imovelId, url, ordem: count, capa: count === 0 },
+    });
 
-  revalidatePath(`/admin/imoveis/${imovelId}`);
-  revalidarPortal();
+    revalidatePath(`/admin/imoveis/${imovelId}`);
+    revalidarPortal();
+    return { ok: true };
+  } catch (e) {
+    return { error: (e as Error).message || "Falha ao enviar a foto." };
+  }
 }
 
 export async function deleteFoto(formData: FormData) {

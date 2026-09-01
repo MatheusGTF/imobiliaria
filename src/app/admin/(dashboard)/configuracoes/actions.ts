@@ -24,18 +24,25 @@ export async function updateEmpresa(formData: FormData) {
 }
 
 /** Recebe a logo já redimensionada (.webp pequeno) do navegador. */
-export async function salvarLogo(formData: FormData) {
-  const file = formData.get("logo") as File | null;
-  if (!file || file.size === 0) return;
+export async function salvarLogo(
+  formData: FormData,
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const file = formData.get("logo") as File | null;
+    if (!file || file.size === 0) return { error: "Nenhum arquivo selecionado." };
 
-  const empresa = await getEmpresa();
-  if (empresa.logoUrl) await deletePhotoFile(empresa.logoUrl);
+    const empresa = await getEmpresa();
+    if (empresa.logoUrl) await deletePhotoFile(empresa.logoUrl);
 
-  const url = await saveUploadedPhoto(file);
-  await prisma.empresa.update({ where: { id: empresa.id }, data: { logoUrl: url } });
+    const url = await saveUploadedPhoto(file);
+    await prisma.empresa.update({ where: { id: empresa.id }, data: { logoUrl: url } });
 
-  revalidatePath("/admin/configuracoes");
-  revalidatePath("/", "layout");
+    revalidatePath("/admin/configuracoes");
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (e) {
+    return { error: (e as Error).message || "Falha ao enviar a logo." };
+  }
 }
 
 export async function removerLogo() {

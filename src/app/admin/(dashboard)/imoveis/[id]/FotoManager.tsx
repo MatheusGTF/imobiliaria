@@ -1,28 +1,14 @@
 import Image from "next/image";
 import { Star, ArrowLeft, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { DeleteButton } from "@/components/ui/DeleteButton";
-import { uploadFotos, deleteFoto, setFotoCapa, moveFoto } from "../actions";
+import { UploadFotos } from "@/components/admin/UploadFotos";
+import { deleteFoto, setFotoCapa, moveFoto } from "../actions";
 import type { Foto } from "@prisma/client";
 
 export function FotoManager({ imovelId, fotos }: { imovelId: string; fotos: Foto[] }) {
-  const uploadAction = uploadFotos.bind(null, imovelId);
-
   return (
     <div className="space-y-6">
-      <form action={uploadAction} className="flex items-center gap-3">
-        <input
-          type="file"
-          name="fotos"
-          accept="image/*"
-          multiple
-          required
-          className="text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-slate-200"
-        />
-        <Button type="submit" size="sm">
-          Enviar fotos
-        </Button>
-      </form>
+      <UploadFotos imovelId={imovelId} />
 
       {fotos.length === 0 ? (
         <p className="text-sm text-slate-500">Nenhuma foto cadastrada ainda.</p>

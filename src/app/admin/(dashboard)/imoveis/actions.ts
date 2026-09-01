@@ -110,25 +110,21 @@ export async function deleteImovel(formData: FormData) {
   redirect("/admin/imoveis");
 }
 
-export async function uploadFotos(imovelId: string, formData: FormData) {
-  const files = formData.getAll("fotos") as File[];
-  const existingCount = await prisma.foto.count({ where: { imovelId } });
-  const hasCapa = existingCount > 0;
+/**
+ * Adiciona UMA foto ao imóvel. O navegador já redimensionou/converteu para
+ * .webp antes de enviar (ver src/components/admin/UploadFotos.tsx), então o
+ * arquivo que chega aqui é pequeno. É chamada uma vez por foto.
+ */
+export async function adicionarFoto(imovelId: string, formData: FormData) {
+  const file = formData.get("foto") as File | null;
+  if (!file || file.size === 0) return;
 
-  let ordem = existingCount;
-  for (const file of files) {
-    if (!file || file.size === 0) continue;
-    const url = await saveUploadedPhoto(file);
-    await prisma.foto.create({
-      data: {
-        imovelId,
-        url,
-        ordem,
-        capa: !hasCapa && ordem === existingCount,
-      },
-    });
-    ordem += 1;
-  }
+  const url = await saveUploadedPhoto(file);
+  const count = await prisma.foto.count({ where: { imovelId } });
+
+  await prisma.foto.create({
+    data: { imovelId, url, ordem: count, capa: count === 0 },
+  });
 
   revalidatePath(`/admin/imoveis/${imovelId}`);
   revalidarPortal();

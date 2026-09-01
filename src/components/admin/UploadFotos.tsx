@@ -1,22 +1,22 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { resizeToWebp } from "@/lib/imageResize";
 import { adicionarFoto } from "@/app/admin/(dashboard)/imoveis/actions";
 
 export function UploadFotos({ imovelId }: { imovelId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [progresso, setProgresso] = useState("");
-  const [, startTransition] = useTransition();
 
   async function enviar() {
     const files = Array.from(inputRef.current?.files ?? []);
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      setErro("Escolha uma ou mais fotos primeiro.");
+      return;
+    }
 
     setEnviando(true);
     setErro(null);
@@ -26,10 +26,13 @@ export function UploadFotos({ imovelId }: { imovelId: string }) {
         const otimizada = await resizeToWebp(files[i]);
         const fd = new FormData();
         fd.append("foto", otimizada);
-        await adicionarFoto(imovelId, fd);
+        const res = await adicionarFoto(imovelId, fd);
+        if ("error" in res) {
+          setErro(`Foto ${i + 1}: ${res.error}`);
+          return;
+        }
       }
-      if (inputRef.current) inputRef.current.value = "";
-      startTransition(() => router.refresh());
+      window.location.reload();
     } catch (e) {
       setErro((e as Error).message || "Falha no envio. Tente novamente.");
     } finally {

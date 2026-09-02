@@ -128,6 +128,21 @@ retrato fresco (`prisma/data-export.json`, gitignored).
     como modelo estava errado/desatualizado. Como o documento de contrato é
     gerado a partir de `Empresa.endereco`, contratos gerados de agora em diante
     (e o do Irigaray, se regerado) saem com o nº 6.
+- **Fotos em produção**: o Blob criado na Vercel é **store privado** (não
+  aceita `access:"public"`). O upload grava blob privado (`put access:"private"`,
+  auth por OIDC via `BLOB_STORE_ID`) e as imagens são servidas pela rota
+  **`src/app/f/[...path]/route.ts`** (`GET` faz `get()` com o token do servidor
+  e devolve com cache imutável). O `Foto.url`/`Empresa.logoUrl` guardam
+  `/f/uploads/xxx.webp`. O upload é **client-side**: `src/lib/imageResize.ts`
+  redimensiona pra .webp no navegador, e `UploadFotos`/`UploadLogo`
+  (`src/components/admin/`) chamam `adicionarFoto`/`salvarLogo` uma imagem por
+  vez (server actions com limite de corpo de 3 MB no `next.config`). As
+  3 fotos legadas `/uploads/*` da migração foram apagadas do banco.
+- **Exclusões no `/admin`**: `deleteContrato/Inquilino/Proprietario/Imovel`
+  recebem `id` e retornam `{ ok } | { error }` (não lançam mais). O
+  `src/components/admin/BotaoExcluir.tsx` mostra o motivo da recusa inline.
+  `src/app/admin/(dashboard)/error.tsx` é a rede de segurança pro resto.
+  Contrato com parcela **paga** não pode ser excluído — usar "Encerrar".
 - **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
   foi só no portal público até agora.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala

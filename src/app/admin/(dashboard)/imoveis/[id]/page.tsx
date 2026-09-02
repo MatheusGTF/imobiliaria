@@ -5,7 +5,7 @@ import { ImovelForm } from "../ImovelForm";
 import { FotoManager } from "./FotoManager";
 import { VendaManager } from "./VendaManager";
 import { updateImovel, deleteImovel } from "../actions";
-import { DeleteButton } from "@/components/ui/DeleteButton";
+import { BotaoExcluir } from "@/components/admin/BotaoExcluir";
 import { Card } from "@/components/ui/Card";
 import { aceitaVenda } from "@/lib/constants";
 
@@ -52,10 +52,12 @@ export default async function EditarImovelPage({ params }: { params: Promise<{ i
         <p className="mb-4 text-sm text-slate-500">
           Remove o imóvel, suas fotos e contratos vinculados não poderão mais referenciá-lo.
         </p>
-        <form action={deleteImovel}>
-          <input type="hidden" name="id" value={imovel.id} />
-          <DeleteButton label="Excluir imóvel" confirmMessage="Excluir este imóvel e todas as suas fotos?" />
-        </form>
+        <BotaoExcluir
+          acao={deleteImovel.bind(null, imovel.id)}
+          redirecionarPara="/admin/imoveis"
+          confirmacao="Excluir este imóvel e todas as suas fotos?"
+          label="Excluir imóvel"
+        />
       </Card>
     </div>
   );

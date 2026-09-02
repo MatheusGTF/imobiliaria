@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { inquilinoSchema } from "@/lib/validations";
+import type { ResultadoAcao } from "@/lib/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -28,15 +29,16 @@ export async function updateInquilino(id: string, formData: FormData) {
   redirect("/admin/inquilinos");
 }
 
-export async function deleteInquilino(formData: FormData) {
-  const id = formData.get("id") as string;
-
+export async function deleteInquilino(id: string): Promise<ResultadoAcao> {
   const contratosVinculados = await prisma.contrato.count({ where: { inquilinoId: id } });
   if (contratosVinculados > 0) {
-    throw new Error("Este inquilino possui contratos vinculados e não pode ser excluído.");
+    return {
+      error:
+        "Este inquilino tem contrato(s) vinculado(s). Exclua ou encerre os contratos antes de excluir o inquilino.",
+    };
   }
 
   await prisma.inquilino.delete({ where: { id } });
   revalidatePath("/admin/inquilinos");
-  redirect("/admin/inquilinos");
+  return { ok: true };
 }

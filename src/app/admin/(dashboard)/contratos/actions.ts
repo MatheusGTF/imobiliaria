@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { contratoSchema } from "@/lib/validations";
 import { gerarMesesReferencia, calcularDataVencimento } from "@/lib/pagamentos";
 import { revalidarPortal } from "@/lib/revalidate";
+import type { ResultadoAcao } from "@/lib/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -85,18 +86,17 @@ export async function encerrarContrato(formData: FormData) {
   revalidarPortal();
 }
 
-export async function deleteContrato(formData: FormData) {
-  const id = formData.get("id") as string;
+export async function deleteContrato(id: string): Promise<ResultadoAcao> {
+  const contrato = await prisma.contrato.findUnique({ where: { id } });
+  if (!contrato) return { error: "Contrato não encontrado." };
 
   const pagamentosPagos = await prisma.pagamento.count({ where: { contratoId: id, status: "PAGO" } });
   if (pagamentosPagos > 0) {
-    throw new Error(
-      "Este contrato já possui pagamentos registrados e não pode ser excluído. Encerre o contrato em vez disso."
-    );
+    return {
+      error:
+        "Este contrato tem parcelas marcadas como pagas. Para manter o histórico financeiro, use \"Encerrar contrato\" em vez de excluir.",
+    };
   }
-
-  const contrato = await prisma.contrato.findUnique({ where: { id } });
-  if (!contrato) throw new Error("Contrato não encontrado.");
 
   await prisma.pagamento.deleteMany({ where: { contratoId: id } });
   await prisma.contrato.delete({ where: { id } });
@@ -111,5 +111,5 @@ export async function deleteContrato(formData: FormData) {
   revalidatePath("/admin/contratos");
   revalidatePath("/admin/imoveis");
   revalidarPortal();
-  redirect("/admin/contratos");
+  return { ok: true };
 }

@@ -5,6 +5,7 @@ import { imovelSchema, vendaSchema } from "@/lib/validations";
 import { saveUploadedPhoto, deletePhotoFile } from "@/lib/photos";
 import { aceitaAluguel, aceitaVenda } from "@/lib/constants";
 import { revalidarPortal } from "@/lib/revalidate";
+import type { ResultadoAcao } from "@/lib/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -90,14 +91,13 @@ export async function reabrirAnuncio(formData: FormData) {
   revalidatePath(`/admin/imoveis/${id}`);
 }
 
-export async function deleteImovel(formData: FormData) {
-  const id = formData.get("id") as string;
-
+export async function deleteImovel(id: string): Promise<ResultadoAcao> {
   const contratosVinculados = await prisma.contrato.count({ where: { imovelId: id } });
   if (contratosVinculados > 0) {
-    throw new Error(
-      "Este imóvel possui contratos vinculados e não pode ser excluído. Encerre ou remova os contratos primeiro."
-    );
+    return {
+      error:
+        "Este imóvel tem contrato(s) vinculado(s). Exclua ou encerre os contratos antes de excluir o imóvel.",
+    };
   }
 
   const fotos = await prisma.foto.findMany({ where: { imovelId: id } });
@@ -107,7 +107,7 @@ export async function deleteImovel(formData: FormData) {
 
   revalidatePath("/admin/imoveis");
   revalidarPortal();
-  redirect("/admin/imoveis");
+  return { ok: true };
 }
 
 /**

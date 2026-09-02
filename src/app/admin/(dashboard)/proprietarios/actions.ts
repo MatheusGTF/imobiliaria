@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { proprietarioSchema } from "@/lib/validations";
+import type { ResultadoAcao } from "@/lib/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -28,15 +29,16 @@ export async function updateProprietario(id: string, formData: FormData) {
   redirect("/admin/proprietarios");
 }
 
-export async function deleteProprietario(formData: FormData) {
-  const id = formData.get("id") as string;
-
+export async function deleteProprietario(id: string): Promise<ResultadoAcao> {
   const imoveisVinculados = await prisma.imovel.count({ where: { proprietarioId: id } });
   if (imoveisVinculados > 0) {
-    throw new Error("Este proprietário possui imóveis vinculados e não pode ser excluído.");
+    return {
+      error:
+        "Este proprietário tem imóvel(is) vinculado(s). Troque o proprietário desses imóveis antes de excluir.",
+    };
   }
 
   await prisma.proprietario.delete({ where: { id } });
   revalidatePath("/admin/proprietarios");
-  redirect("/admin/proprietarios");
+  return { ok: true };
 }

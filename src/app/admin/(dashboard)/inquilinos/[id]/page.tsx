@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { InquilinoForm } from "../InquilinoForm";
 import { updateInquilino, deleteInquilino } from "../actions";
-import { DeleteButton } from "@/components/ui/DeleteButton";
+import { BotaoExcluir } from "@/components/admin/BotaoExcluir";
 import { Card } from "@/components/ui/Card";
 
 export default async function EditarInquilinoPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,10 +28,12 @@ export default async function EditarInquilinoPage({ params }: { params: Promise<
 
       <Card className="border-red-200">
         <h2 className="mb-2 text-lg font-medium text-red-700">Excluir inquilino</h2>
-        <form action={deleteInquilino}>
-          <input type="hidden" name="id" value={inquilino.id} />
-          <DeleteButton label="Excluir inquilino" />
-        </form>
+        <BotaoExcluir
+          acao={deleteInquilino.bind(null, inquilino.id)}
+          redirecionarPara="/admin/inquilinos"
+          confirmacao="Excluir este inquilino?"
+          label="Excluir inquilino"
+        />
       </Card>
     </div>
   );

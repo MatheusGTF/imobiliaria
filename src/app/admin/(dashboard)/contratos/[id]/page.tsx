@@ -4,8 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { DeleteButton } from "@/components/ui/DeleteButton";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
+import { BotaoExcluir } from "@/components/admin/BotaoExcluir";
 import { STATUS_CONTRATO, STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/constants";
 import { formatCurrency, formatDate, formatMonth } from "@/lib/format";
 import { encerrarContrato, deleteContrato } from "../actions";
@@ -104,13 +104,12 @@ export default async function ContratoDetailPage({ params }: { params: Promise<{
               </ConfirmButton>
             </form>
           )}
-          <form action={deleteContrato}>
-            <input type="hidden" name="id" value={contrato.id} />
-            <DeleteButton
-              label="Excluir contrato"
-              confirmMessage="Excluir este contrato e seus recebíveis pendentes?"
-            />
-          </form>
+          <BotaoExcluir
+            acao={deleteContrato.bind(null, contrato.id)}
+            redirecionarPara="/admin/contratos"
+            confirmacao="Excluir este contrato e seus recebíveis pendentes?"
+            label="Excluir contrato"
+          />
         </div>
       </Card>
 

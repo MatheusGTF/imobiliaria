@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProprietarioForm } from "../ProprietarioForm";
 import { updateProprietario, deleteProprietario } from "../actions";
-import { DeleteButton } from "@/components/ui/DeleteButton";
+import { BotaoExcluir } from "@/components/admin/BotaoExcluir";
 import { Card } from "@/components/ui/Card";
 
 export default async function EditarProprietarioPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,10 +28,12 @@ export default async function EditarProprietarioPage({ params }: { params: Promi
 
       <Card className="border-red-200">
         <h2 className="mb-2 text-lg font-medium text-red-700">Excluir proprietário</h2>
-        <form action={deleteProprietario}>
-          <input type="hidden" name="id" value={proprietario.id} />
-          <DeleteButton label="Excluir proprietário" />
-        </form>
+        <BotaoExcluir
+          acao={deleteProprietario.bind(null, proprietario.id)}
+          redirecionarPara="/admin/proprietarios"
+          confirmacao="Excluir este proprietário?"
+          label="Excluir proprietário"
+        />
       </Card>
     </div>
   );

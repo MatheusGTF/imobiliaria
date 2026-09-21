@@ -143,6 +143,16 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   `src/components/admin/BotaoExcluir.tsx` mostra o motivo da recusa inline.
   `src/app/admin/(dashboard)/error.tsx` é a rede de segurança pro resto.
   Contrato com parcela **paga** não pode ser excluído — usar "Encerrar".
+- **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
+  (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
+  milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**
+  `<input type="number">` para reais: em pt-BR "5.000" era lido como 5.
+- **Taxa de administração** (`Empresa.taxaAdministracaoPercentual`, padrão 10,
+  editável em Configurações) NÃO aparece em contrato nem no portal — só no
+  Financeiro (`src/lib/financeiro.ts`: aluguel → administração → repasse; a
+  administração incide só sobre o aluguel, não sobre condomínio/IPTU).
+  `Contrato.taxaAdministracaoPercentual` continua na tabela como override
+  opcional, mas o formulário de contrato não pede mais.
 - **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
   foi só no portal público até agora.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala

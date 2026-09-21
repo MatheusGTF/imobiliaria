@@ -70,12 +70,6 @@ export default async function ContratoDetailPage({ params }: { params: Promise<{
             <dd className="font-medium text-slate-900">{formatCurrency(contrato.valorIptu)}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">Taxa de administração</dt>
-            <dd className="font-medium text-slate-900">
-              {contrato.taxaAdministracaoPercentual ? `${contrato.taxaAdministracaoPercentual}%` : "-"}
-            </dd>
-          </div>
-          <div>
             <dt className="text-slate-500">Caução</dt>
             <dd className="font-medium text-slate-900">{formatCurrency(contrato.valorCaucao)}</dd>
           </div>

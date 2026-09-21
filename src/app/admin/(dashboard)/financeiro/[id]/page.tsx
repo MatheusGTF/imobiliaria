@@ -3,9 +3,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/Card";
 import { Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
 import { STATUS_PAGAMENTO, FORMAS_PAGAMENTO } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { getEmpresa } from "@/lib/empresa";
+import { dividirPagamento } from "@/lib/financeiro";
 import { updatePagamento } from "../actions";
 
 function toDateInputValue(value: Date | null) {
@@ -23,6 +26,8 @@ export default async function PagamentoDetailPage({ params }: { params: Promise<
 
   if (!pagamento) notFound();
 
+  const empresa = await getEmpresa();
+  const divisao = dividirPagamento(pagamento.valorDevido, pagamento.contrato, empresa);
   const updateWithId = updatePagamento.bind(null, id);
 
   return (
@@ -52,6 +57,14 @@ export default async function PagamentoDetailPage({ params }: { params: Promise<
             <dt className="text-slate-500">Valor devido</dt>
             <dd className="font-medium text-slate-900">{formatCurrency(pagamento.valorDevido)}</dd>
           </div>
+          <div>
+            <dt className="text-slate-500">Sua administração ({divisao.taxa}%)</dt>
+            <dd className="font-medium text-slate-900">{formatCurrency(divisao.administracao)}</dd>
+          </div>
+          <div>
+            <dt className="text-slate-500">Repasse ao proprietário</dt>
+            <dd className="font-medium text-slate-900">{formatCurrency(divisao.repasse)}</dd>
+          </div>
         </dl>
       </Card>
 
@@ -66,14 +79,7 @@ export default async function PagamentoDetailPage({ params }: { params: Promise<
           </Select>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Valor pago (R$)"
-              name="valorPago"
-              type="number"
-              step="0.01"
-              min={0}
-              defaultValue={pagamento.valorPago ?? ""}
-            />
+            <MoneyField label="Valor pago" name="valorPago" defaultValue={pagamento.valorPago} />
             <Input
               label="Data do pagamento"
               name="dataPagamento"

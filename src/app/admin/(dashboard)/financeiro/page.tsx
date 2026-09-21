@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
 import { STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { getEmpresa } from "@/lib/empresa";
+import { dividirPagamento } from "@/lib/financeiro";
 import { marcarComoPago } from "./actions";
 import { Wallet } from "lucide-react";
 
@@ -32,7 +34,17 @@ export default async function FinanceiroPage({
     orderBy: { dataVencimento: "asc" },
   });
 
-  const totalPrevisto = pagamentosDoMes.reduce((acc, p) => acc + p.valorDevido, 0);
+  const empresa = await getEmpresa();
+  const ativos = pagamentosDoMes.filter((p) => p.status !== "CANCELADO");
+  const divisao = (p: (typeof pagamentosDoMes)[number], valor = p.valorDevido) =>
+    dividirPagamento(valor, p.contrato, empresa);
+
+  const totalPrevisto = ativos.reduce((acc, p) => acc + p.valorDevido, 0);
+  const admPrevista = ativos.reduce((acc, p) => acc + divisao(p).administracao, 0);
+  const repassePrevisto = ativos.reduce((acc, p) => acc + divisao(p).repasse, 0);
+  const admRecebida = ativos
+    .filter((p) => p.status === "PAGO")
+    .reduce((acc, p) => acc + divisao(p, p.valorPago ?? p.valorDevido).administracao, 0);
   const totalRecebido = pagamentosDoMes
     .filter((p) => p.status === "PAGO")
     .reduce((acc, p) => acc + (p.valorPago ?? 0), 0);
@@ -67,6 +79,23 @@ export default async function FinanceiroPage({
         <Card>
           <p className="text-xs text-slate-500">Atrasado</p>
           <p className="mt-1 text-lg font-semibold text-red-700">{formatCurrency(totalAtrasado)}</p>
+        </Card>
+      </div>
+
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Card>
+          <p className="text-xs text-slate-500">Sua administração prevista ({empresa.taxaAdministracaoPercentual}%)</p>
+          <p className="mt-1 text-lg font-semibold text-slate-900">{formatCurrency(admPrevista)}</p>
+          <p className="mt-0.5 text-xs text-slate-400">Já recebida: {formatCurrency(admRecebida)}</p>
+        </Card>
+        <Card>
+          <p className="text-xs text-slate-500">Repasse aos proprietários (previsto)</p>
+          <p className="mt-1 text-lg font-semibold text-slate-900">{formatCurrency(repassePrevisto)}</p>
+        </Card>
+        <Card>
+          <p className="text-xs text-slate-500">Total dos aluguéis do mês</p>
+          <p className="mt-1 text-lg font-semibold text-slate-900">{formatCurrency(totalPrevisto)}</p>
+          <p className="mt-0.5 text-xs text-slate-400">= administração + repasse</p>
         </Card>
       </div>
 
@@ -108,7 +137,9 @@ export default async function FinanceiroPage({
                 <th className="px-4 py-3">Imóvel</th>
                 <th className="px-4 py-3">Inquilino</th>
                 <th className="px-4 py-3">Vencimento</th>
-                <th className="px-4 py-3">Valor</th>
+                <th className="px-4 py-3">Valor do aluguel</th>
+                <th className="px-4 py-3">Administração</th>
+                <th className="px-4 py-3">Repasse</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -131,6 +162,21 @@ export default async function FinanceiroPage({
                     <td className="px-4 py-3 text-slate-600">{p.contrato.inquilino.nome}</td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(p.dataVencimento)}</td>
                     <td className="px-4 py-3 text-slate-600">{formatCurrency(p.valorDevido)}</td>
+                    {p.status === "CANCELADO" ? (
+                      <td className="px-4 py-3 text-slate-400" colSpan={2}>
+                        —
+                      </td>
+                    ) : (
+                      <>
+                        <td className="px-4 py-3 text-slate-600">
+                          {formatCurrency(divisao(p).administracao)}
+                          <span className="ml-1 text-xs text-slate-400">({divisao(p).taxa}%)</span>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-slate-900">
+                          {formatCurrency(divisao(p).repasse)}
+                        </td>
+                      </>
+                    )}
                     <td className="px-4 py-3">
                       <Badge color={badge?.color}>{labelFor(STATUS_PAGAMENTO, efetivo)}</Badge>
                     </td>

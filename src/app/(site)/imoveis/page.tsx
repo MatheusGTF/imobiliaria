@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Building2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { ImovelCard } from "@/components/site/ImovelCard";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { TIPOS_IMOVEL, TIPOS_VITRINE } from "@/lib/constants";
 import { contarDisponiveisPorTipo } from "@/lib/imoveis";
 import type { Prisma } from "@prisma/client";
@@ -122,14 +123,14 @@ export default async function ImoveisListPage({
             </option>
           ))}
         </select>
-        <input
-          type="number"
+        <MoneyInput
           name="valorMax"
           placeholder="Valor máximo"
-          defaultValue={valorMax}
+          defaultValue={valorMax ? Number(valorMax) : null}
           disabled={!finalidade}
           title={!finalidade ? "Escolha alugar ou comprar para filtrar por valor" : undefined}
-          className="rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 disabled:bg-ink-100 disabled:text-ink-400 sm:col-span-2"
+          wrapperClassName="sm:col-span-2"
+          className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 disabled:bg-ink-100 disabled:text-ink-400"
         />
         <button
           type="submit"

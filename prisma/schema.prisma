@@ -77,6 +77,9 @@ model Empresa {
   responsavel2Creci String?
   chavePix          String?
   logoUrl           String?
+  // % que a imobiliária retém do aluguel. Só aparece no Financeiro — nunca no
+  // contrato nem no portal. Um contrato pode ter taxa própria (Contrato.taxaAdministracaoPercentual).
+  taxaAdministracaoPercentual Float @default(10)
   updatedAt         DateTime @updatedAt
 }
 

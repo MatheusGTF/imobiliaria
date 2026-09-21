@@ -35,7 +35,8 @@ export default async function ContratosPage() {
               <tr>
                 <th className="px-4 py-3">Imóvel</th>
                 <th className="px-4 py-3">Inquilino</th>
-                <th className="px-4 py-3">Período</th>
+                <th className="px-4 py-3">Vigência do contrato</th>
+                <th className="px-4 py-3">Aluguel vence</th>
                 <th className="px-4 py-3">Aluguel</th>
                 <th className="px-4 py-3">Status</th>
               </tr>
@@ -54,6 +55,7 @@ export default async function ContratosPage() {
                     <td className="px-4 py-3 text-slate-600">
                       {formatDate(c.dataInicio)} – {formatDate(c.dataFim)}
                     </td>
+                    <td className="px-4 py-3 text-slate-600">Todo dia {c.diaVencimento}</td>
                     <td className="px-4 py-3 text-slate-600">{formatCurrency(c.valorAluguel)}</td>
                     <td className="px-4 py-3">
                       <Badge color={status?.color}>{labelFor(STATUS_CONTRATO, c.status)}</Badge>

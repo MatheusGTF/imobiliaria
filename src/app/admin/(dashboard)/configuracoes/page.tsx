@@ -113,6 +113,16 @@ export default async function ConfiguracoesPage() {
             defaultValue={empresa.chavePix ?? ""}
             placeholder="CNPJ, telefone, email ou chave aleatória"
           />
+          <Input
+            label="Taxa de administração (%)"
+            name="taxaAdministracaoPercentual"
+            type="number"
+            step="0.1"
+            min={0}
+            max={100}
+            defaultValue={empresa.taxaAdministracaoPercentual}
+            hint="Quanto você retém do aluguel. Aparece só no Financeiro (aluguel / administração / repasse) — nunca no contrato nem no site."
+          />
           <div className="flex justify-end">
             <Button type="submit">Salvar</Button>
           </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
 import { ContratoImovelFields } from "../ContratoImovelFields";
 import { createContrato } from "../actions";
@@ -59,37 +60,38 @@ export default async function NovoContratoPage() {
         </Select>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Input label="Data de início" name="dataInicio" type="date" required />
-          <Input label="Data de término" name="dataFim" type="date" required />
           <Input
-            label="Dia de vencimento"
+            label="Início do contrato"
+            name="dataInicio"
+            type="date"
+            required
+            hint="Data em que a locação começa."
+          />
+          <Input
+            label="Fim do contrato (vencimento)"
+            name="dataFim"
+            type="date"
+            required
+            hint="Data em que o contrato vence."
+          />
+          <Input
+            label="Dia do vencimento do aluguel"
             name="diaVencimento"
             type="number"
             min={1}
             max={31}
             defaultValue={10}
             required
+            hint="Todo mês, neste dia (1 a 31)."
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input
-            label="Taxa de administração (%)"
-            name="taxaAdministracaoPercentual"
-            type="number"
-            step="0.01"
-            min={0}
-            max={100}
-          />
-          <Input
-            label="Valor da caução (R$)"
-            name="valorCaucao"
-            type="number"
-            step="0.01"
-            min={0}
-            placeholder="Ex: igual a 1 mês de aluguel"
-          />
-        </div>
+        <MoneyField
+          label="Valor da caução"
+          name="valorCaucao"
+          placeholder="Ex.: igual a 1 mês de aluguel"
+          hint="Opcional. Deixe em branco se não houver caução."
+        />
 
         <Textarea
           label="Bens inclusos no imóvel"
@@ -105,7 +107,9 @@ export default async function NovoContratoPage() {
           <Link href="/admin/configuracoes" className="underline">
             Configurações
           </Link>{" "}
-          — essas informações entram automaticamente no contrato gerado.
+          — essas informações entram automaticamente no contrato gerado. A sua taxa de
+          administração é definida em Configurações e aparece só no Financeiro — nunca no
+          contrato do cliente.
         </p>
 
         <div className="flex justify-end">

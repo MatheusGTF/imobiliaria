@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Select, Input } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Field";
+import { MoneyField } from "@/components/ui/MoneyInput";
 import { FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/constants";
 
 export function FinalidadeFields({
@@ -28,25 +29,19 @@ export function FinalidadeFields({
       </Select>
 
       {aceitaAluguel(finalidade) && (
-        <Input
-          label="Valor do aluguel (R$)"
+        <MoneyField
+          label="Valor do aluguel"
           name="valorAluguel"
-          type="number"
-          step="0.01"
-          min={0}
-          defaultValue={imovel?.valorAluguel ?? ""}
+          defaultValue={imovel?.valorAluguel}
           required
         />
       )}
 
       {aceitaVenda(finalidade) && (
-        <Input
-          label="Valor de venda (R$)"
+        <MoneyField
+          label="Valor de venda"
           name="valorVenda"
-          type="number"
-          step="0.01"
-          min={0}
-          defaultValue={imovel?.valorVenda ?? ""}
+          defaultValue={imovel?.valorVenda}
           required
         />
       )}

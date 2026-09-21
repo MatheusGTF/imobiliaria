@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Select } from "@/components/ui/Field";
+import { Select } from "@/components/ui/Field";
+import { MoneyField } from "@/components/ui/MoneyInput";
 
 type ImovelOption = {
   id: string;
@@ -13,24 +14,27 @@ type ImovelOption = {
   valorIptu: number | null;
 };
 
+type Valores = {
+  valorAluguel: number | null;
+  valorCondominio: number | null;
+  valorIptu: number | null;
+};
+
+function valoresDoImovel(imovel?: ImovelOption): Valores {
+  return {
+    valorAluguel: imovel?.valorAluguel || null,
+    valorCondominio: imovel?.valorCondominio || null,
+    valorIptu: imovel?.valorIptu || null,
+  };
+}
+
 export function ContratoImovelFields({ imoveis }: { imoveis: ImovelOption[] }) {
   const [selecionadoId, setSelecionadoId] = useState(imoveis[0]?.id ?? "");
-  const [valores, setValores] = useState({
-    valorAluguel: imoveis[0]?.valorAluguel ?? 0,
-    valorCondominio: imoveis[0]?.valorCondominio ?? 0,
-    valorIptu: imoveis[0]?.valorIptu ?? 0,
-  });
+  const [valores, setValores] = useState<Valores>(valoresDoImovel(imoveis[0]));
 
   function onSelecionarImovel(id: string) {
     setSelecionadoId(id);
-    const imovel = imoveis.find((i) => i.id === id);
-    if (imovel) {
-      setValores({
-        valorAluguel: imovel.valorAluguel,
-        valorCondominio: imovel.valorCondominio ?? 0,
-        valorIptu: imovel.valorIptu ?? 0,
-      });
-    }
+    setValores(valoresDoImovel(imoveis.find((i) => i.id === id)));
   }
 
   return (
@@ -53,33 +57,24 @@ export function ContratoImovelFields({ imoveis }: { imoveis: ImovelOption[] }) {
       </Select>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Input
-          label="Valor do aluguel (R$)"
+        <MoneyField
+          label="Valor do aluguel"
           name="valorAluguel"
-          type="number"
-          step="0.01"
-          min={0}
           value={valores.valorAluguel}
-          onChange={(e) => setValores((v) => ({ ...v, valorAluguel: Number(e.target.value) }))}
+          onValueChange={(v) => setValores((atual) => ({ ...atual, valorAluguel: v }))}
           required
         />
-        <Input
-          label="Condomínio (R$)"
+        <MoneyField
+          label="Condomínio"
           name="valorCondominio"
-          type="number"
-          step="0.01"
-          min={0}
           value={valores.valorCondominio}
-          onChange={(e) => setValores((v) => ({ ...v, valorCondominio: Number(e.target.value) }))}
+          onValueChange={(v) => setValores((atual) => ({ ...atual, valorCondominio: v }))}
         />
-        <Input
-          label="IPTU (R$)"
+        <MoneyField
+          label="IPTU"
           name="valorIptu"
-          type="number"
-          step="0.01"
-          min={0}
           value={valores.valorIptu}
-          onChange={(e) => setValores((v) => ({ ...v, valorIptu: Number(e.target.value) }))}
+          onValueChange={(v) => setValores((atual) => ({ ...atual, valorIptu: v }))}
         />
       </div>
     </>

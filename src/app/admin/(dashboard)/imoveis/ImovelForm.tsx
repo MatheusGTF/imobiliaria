@@ -1,4 +1,5 @@
 import { Input, Select, Textarea } from "@/components/ui/Field";
+import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
 import { TIPOS_IMOVEL, STATUS_IMOVEL } from "@/lib/constants";
 import { FinalidadeFields } from "./FinalidadeFields";
@@ -85,22 +86,8 @@ export function ImovelForm({
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <FinalidadeFields imovel={imovel} />
-          <Input
-            label="Condomínio (R$)"
-            name="valorCondominio"
-            type="number"
-            step="0.01"
-            min={0}
-            defaultValue={imovel?.valorCondominio ?? ""}
-          />
-          <Input
-            label="IPTU (R$)"
-            name="valorIptu"
-            type="number"
-            step="0.01"
-            min={0}
-            defaultValue={imovel?.valorIptu ?? ""}
-          />
+          <MoneyField label="Condomínio" name="valorCondominio" defaultValue={imovel?.valorCondominio} />
+          <MoneyField label="IPTU" name="valorIptu" defaultValue={imovel?.valorIptu} />
           <Input
             label="Área (m²)"
             name="areaM2"

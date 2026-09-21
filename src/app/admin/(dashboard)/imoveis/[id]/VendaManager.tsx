@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/Field";
+import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -29,13 +30,10 @@ export function VendaManager({ imovel }: { imovel: Imovel }) {
   return (
     <form action={marcarVendidoWithId} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          label="Valor da venda (R$)"
+        <MoneyField
+          label="Valor da venda"
           name="valorVendaFinal"
-          type="number"
-          step="0.01"
-          min={0}
-          defaultValue={imovel.valorVenda ?? ""}
+          defaultValue={imovel.valorVenda}
           required
         />
         <Input label="Data da venda" name="dataVenda" type="date" required />

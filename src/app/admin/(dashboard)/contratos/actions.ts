@@ -86,15 +86,23 @@ export async function encerrarContrato(formData: FormData) {
   revalidarPortal();
 }
 
-export async function deleteContrato(id: string): Promise<ResultadoAcao> {
+/**
+ * Exclui o contrato e todas as parcelas. Com parcelas pagas, só exclui se
+ * `forcar` for true (confirmação explícita do usuário na tela), porque isso
+ * apaga também o histórico de pagamentos.
+ */
+export async function deleteContrato(id: string, forcar = false): Promise<ResultadoAcao> {
   const contrato = await prisma.contrato.findUnique({ where: { id } });
   if (!contrato) return { error: "Contrato não encontrado." };
 
   const pagamentosPagos = await prisma.pagamento.count({ where: { contratoId: id, status: "PAGO" } });
-  if (pagamentosPagos > 0) {
+  if (pagamentosPagos > 0 && !forcar) {
     return {
       error:
-        "Este contrato tem parcelas marcadas como pagas. Para manter o histórico financeiro, use \"Encerrar contrato\" em vez de excluir.",
+        `Este contrato tem ${pagamentosPagos} parcela(s) marcada(s) como paga(s). ` +
+        "Excluir apaga também esse histórico de pagamentos. " +
+        "Para só tirar da lista de ativos mantendo o histórico, use \"Encerrar contrato\".",
+      podeForcar: true,
     };
   }
 

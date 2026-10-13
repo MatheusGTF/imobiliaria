@@ -1,17 +1,20 @@
 import { Input, Select, Textarea } from "@/components/ui/Field";
 import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
-import { TIPOS_IMOVEL, STATUS_IMOVEL } from "@/lib/constants";
+import { TIPOS_IMOVEL } from "@/lib/constants";
 import { FinalidadeFields } from "./FinalidadeFields";
-import type { Imovel, Proprietario } from "@prisma/client";
+import { StatusEPessoasFields } from "./StatusEPessoasFields";
+import type { Imovel, Inquilino, Proprietario } from "@prisma/client";
 
 export function ImovelForm({
   imovel,
   proprietarios,
+  inquilinos,
   action,
 }: {
   imovel?: Imovel | null;
   proprietarios: Proprietario[];
+  inquilinos: Inquilino[];
   action: (formData: FormData) => void;
 }) {
   return (
@@ -32,22 +35,13 @@ export function ImovelForm({
           ))}
         </Select>
 
-        <Select label="Status" name="status" defaultValue={imovel?.status ?? "DISPONIVEL"} required>
-          {STATUS_IMOVEL.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </Select>
-
-        <Select label="Proprietário" name="proprietarioId" defaultValue={imovel?.proprietarioId ?? ""}>
-          <option value="">Não informado</option>
-          {proprietarios.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nome}
-            </option>
-          ))}
-        </Select>
+        <StatusEPessoasFields
+          statusInicial={imovel?.status ?? "DISPONIVEL"}
+          proprietarioIdInicial={imovel?.proprietarioId ?? ""}
+          inquilinoIdInicial={imovel?.inquilinoId ?? ""}
+          proprietarios={proprietarios.map((p) => ({ id: p.id, nome: p.nome }))}
+          inquilinos={inquilinos.map((i) => ({ id: i.id, nome: i.nome }))}
+        />
 
         <div className="flex items-end gap-6 pb-2">
           <label className="flex items-center gap-2 text-sm text-slate-700">

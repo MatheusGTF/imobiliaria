@@ -49,6 +49,7 @@ export const imovelSchema = z
     aceitaPet: z.coerce.boolean().optional(),
 
     proprietarioId: optionalString,
+    inquilinoId: optionalString,
   })
   .superRefine((data, ctx) => {
     if ((data.finalidade === "ALUGUEL" || data.finalidade === "AMBOS") && data.valorAluguel === undefined) {

@@ -9,7 +9,11 @@ import { Plus, Building2 } from "lucide-react";
 
 export default async function ImoveisPage() {
   const imoveis = await prisma.imovel.findMany({
-    include: { fotos: { where: { capa: true }, take: 1 } },
+    include: {
+      fotos: { where: { capa: true }, take: 1 },
+      proprietario: { select: { nome: true } },
+      inquilino: { select: { nome: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -61,6 +65,20 @@ export default async function ImoveisPage() {
                     {imovel.bairro ? `${imovel.bairro}, ` : ""}
                     {imovel.cidade}/{imovel.estado}
                   </p>
+                  {(imovel.proprietario || imovel.inquilino) && (
+                    <div className="mt-2 space-y-0.5 text-xs text-slate-500">
+                      {imovel.proprietario && (
+                        <p className="truncate">
+                          <span className="text-slate-400">Proprietário:</span> {imovel.proprietario.nome}
+                        </p>
+                      )}
+                      {imovel.status === "ALUGADO" && imovel.inquilino && (
+                        <p className="truncate">
+                          <span className="text-slate-400">Inquilino:</span> {imovel.inquilino.nome}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <PrecoImovel imovel={imovel} className="mt-2 text-sm font-semibold text-emerald-700" />
                 </div>
               </Link>

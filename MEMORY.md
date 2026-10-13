@@ -146,6 +146,13 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   "Excluir mesmo assim" (`deleteContrato(id, forcar)`, `podeForcar` no
   `ResultadoAcao`), com confirmação reforçada — apaga contrato + parcelas,
   inclusive as pagas. "Encerrar contrato" é a opção que mantém o histórico.
+- **Inquilino no imóvel** (`Imovel.inquilinoId`, FK opcional): aparece no
+  cadastro do imóvel quando o status é "Alugado"
+  (`imoveis/StatusEPessoasFields.tsx`). Contrato novo preenche; encerrar ou
+  excluir contrato limpa; mudar o status para outro que não Alugado também
+  limpa (`parseImovelForm`). A lista do `/admin` mostra proprietário e
+  inquilino; o portal público **nunca** mostra. Excluir inquilino registrado
+  em imóvel é recusado.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

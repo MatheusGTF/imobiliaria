@@ -102,6 +102,7 @@ export default async function ContratoDetailPage({ params }: { params: Promise<{
             acao={deleteContrato.bind(null, contrato.id)}
             redirecionarPara="/admin/contratos"
             confirmacao="Excluir este contrato e seus recebíveis pendentes?"
+            confirmacaoForcada="ATENÇÃO: isso apaga o contrato e TODAS as parcelas, inclusive as já pagas (o histórico financeiro deste contrato some). Não dá para desfazer. Excluir mesmo assim?"
             label="Excluir contrato"
           />
         </div>

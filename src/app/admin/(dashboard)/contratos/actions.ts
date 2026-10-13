@@ -52,7 +52,10 @@ export async function createContrato(formData: FormData) {
     })),
   });
 
-  await prisma.imovel.update({ where: { id: data.imovelId }, data: { status: "ALUGADO" } });
+  await prisma.imovel.update({
+    where: { id: data.imovelId },
+    data: { status: "ALUGADO", inquilinoId: data.inquilinoId },
+  });
 
   revalidatePath("/admin/contratos");
   revalidatePath("/admin/imoveis");
@@ -77,7 +80,10 @@ export async function encerrarContrato(formData: FormData) {
     where: { imovelId: contrato.imovelId, status: "ATIVO", id: { not: id } },
   });
   if (outrosAtivos === 0) {
-    await prisma.imovel.update({ where: { id: contrato.imovelId }, data: { status: "DISPONIVEL" } });
+    await prisma.imovel.update({
+      where: { id: contrato.imovelId },
+      data: { status: "DISPONIVEL", inquilinoId: null },
+    });
   }
 
   revalidatePath("/admin/contratos");
@@ -113,7 +119,10 @@ export async function deleteContrato(id: string, forcar = false): Promise<Result
     where: { imovelId: contrato.imovelId, status: "ATIVO" },
   });
   if (outrosAtivos === 0) {
-    await prisma.imovel.update({ where: { id: contrato.imovelId }, data: { status: "DISPONIVEL" } });
+    await prisma.imovel.update({
+      where: { id: contrato.imovelId },
+      data: { status: "DISPONIVEL", inquilinoId: null },
+    });
   }
 
   revalidatePath("/admin/contratos");

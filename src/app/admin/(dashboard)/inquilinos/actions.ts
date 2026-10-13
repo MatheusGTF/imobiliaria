@@ -38,6 +38,14 @@ export async function deleteInquilino(id: string): Promise<ResultadoAcao> {
     };
   }
 
+  const imoveisVinculados = await prisma.imovel.count({ where: { inquilinoId: id } });
+  if (imoveisVinculados > 0) {
+    return {
+      error:
+        "Este inquilino está registrado em imóvel(is) alugado(s). Troque o inquilino desses imóveis antes de excluir.",
+    };
+  }
+
   await prisma.inquilino.delete({ where: { id } });
   revalidatePath("/admin/inquilinos");
   return { ok: true };

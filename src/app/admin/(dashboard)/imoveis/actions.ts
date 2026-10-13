@@ -25,6 +25,8 @@ function parseImovelForm(formData: FormData) {
     mobiliado: !!data.mobiliado,
     aceitaPet: !!data.aceitaPet,
     proprietarioId: data.proprietarioId || null,
+    // O inquilino só faz sentido enquanto o imóvel está alugado.
+    inquilinoId: data.status === "ALUGADO" ? data.inquilinoId || null : null,
   };
 }
 

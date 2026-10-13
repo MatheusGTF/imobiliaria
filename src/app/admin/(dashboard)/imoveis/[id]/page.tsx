@@ -12,9 +12,10 @@ import { aceitaVenda } from "@/lib/constants";
 export default async function EditarImovelPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const [imovel, proprietarios] = await Promise.all([
+  const [imovel, proprietarios, inquilinos] = await Promise.all([
     prisma.imovel.findUnique({ where: { id }, include: { fotos: { orderBy: { ordem: "asc" } } } }),
     prisma.proprietario.findMany({ orderBy: { nome: "asc" } }),
+    prisma.inquilino.findMany({ orderBy: { nome: "asc" } }),
   ]);
 
   if (!imovel) notFound();
@@ -37,7 +38,12 @@ export default async function EditarImovelPage({ params }: { params: Promise<{ i
 
       <Card>
         <h2 className="mb-4 text-lg font-medium text-slate-900">Dados do imóvel</h2>
-        <ImovelForm imovel={imovel} proprietarios={proprietarios} action={updateWithId} />
+        <ImovelForm
+          imovel={imovel}
+          proprietarios={proprietarios}
+          inquilinos={inquilinos}
+          action={updateWithId}
+        />
       </Card>
 
       {aceitaVenda(imovel.finalidade) && (

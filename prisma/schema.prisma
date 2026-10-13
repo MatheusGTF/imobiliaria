@@ -56,6 +56,7 @@ model Inquilino {
   endereco      String?
   observacoes   String?
   contratos     Contrato[]
+  imoveis       Imovel[]   // imóveis em que consta como inquilino atual
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
@@ -119,6 +120,12 @@ model Imovel {
 
   proprietarioId String?
   proprietario   Proprietario? @relation(fields: [proprietarioId], references: [id])
+
+  // Inquilino atual (quando status = ALUGADO). É preenchido sozinho ao criar
+  // um contrato e limpo ao encerrá-lo/excluí-lo, mas também pode ser informado
+  // à mão no cadastro do imóvel, para locações sem contrato no sistema.
+  inquilinoId    String?
+  inquilino      Inquilino?    @relation(fields: [inquilinoId], references: [id], onDelete: SetNull)
 
   fotos     Foto[]
   contratos Contrato[]

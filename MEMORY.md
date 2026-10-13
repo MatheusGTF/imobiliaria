@@ -142,7 +142,10 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   recebem `id` e retornam `{ ok } | { error }` (não lançam mais). O
   `src/components/admin/BotaoExcluir.tsx` mostra o motivo da recusa inline.
   `src/app/admin/(dashboard)/error.tsx` é a rede de segurança pro resto.
-  Contrato com parcela **paga** não pode ser excluído — usar "Encerrar".
+  Contrato com parcela **paga**: a exclusão é recusada, mas a tela oferece
+  "Excluir mesmo assim" (`deleteContrato(id, forcar)`, `podeForcar` no
+  `ResultadoAcao`), com confirmação reforçada — apaga contrato + parcelas,
+  inclusive as pagas. "Encerrar contrato" é a opção que mantém o histórico.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

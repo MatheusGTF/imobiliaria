@@ -112,6 +112,13 @@ model Imovel {
   mobiliado        Boolean @default(false)
   aceitaPet        Boolean @default(false)
 
+  // Despesas: o que já vem incluso no aluguel e como funciona o condomínio
+  // (ex.: várias kitnets no mesmo terreno com rateio de água/limpeza).
+  aguaInclusa          Boolean @default(false)
+  energiaInclusa       Boolean @default(false)
+  temCondominio        Boolean @default(false)
+  condominioDescricao  String?
+
   // Preenchido quando a venda é concretizada (status = VENDIDO)
   dataVenda         DateTime?
   valorVendaFinal   Float?

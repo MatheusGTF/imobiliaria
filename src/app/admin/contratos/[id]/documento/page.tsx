@@ -4,10 +4,12 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getEmpresa } from "@/lib/empresa";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { ehNaoResidencial } from "@/lib/constants";
 import {
   enderecoImovel,
   descricaoTipoImovel,
   finalidadeUso,
+  clausulaDespesas,
   qualificacaoEmpresa,
   qualificacaoProprietario,
   qualificacaoInquilino,
@@ -80,10 +82,7 @@ export default async function ContratoDocumentoPage({ params }: { params: Promis
   itens.push({ corpo: `Parágrafo primeiro — O primeiro pagamento ocorrerá em ${formatDate(contrato.dataInicio)}.` });
 
   itens.push({ secao: "Das Despesas" });
-  itens.push({
-    corpo:
-      "Todas as despesas diretamente ligadas ao uso do imóvel, tais como água, energia elétrica, gás, internet e demais consumos, serão de responsabilidade da LOCATÁRIA. As despesas tributárias, como o IPTU, serão de responsabilidade do proprietário do imóvel.",
-  });
+  itens.push({ corpo: clausulaDespesas(imovel) });
 
   itens.push({ secao: "Do Inadimplemento" });
   itens.push({
@@ -180,7 +179,7 @@ export default async function ContratoDocumentoPage({ params }: { params: Promis
 
       <article className="space-y-3 text-sm leading-relaxed text-slate-800">
         <h1 className="mb-4 text-center text-base font-bold uppercase underline">
-          Contrato Particular de Locação {imovel.tipo === "COMERCIAL" ? "Não Residencial" : "Residencial"}
+          Contrato Particular de Locação {ehNaoResidencial(imovel.tipo) ? "Não Residencial" : "Residencial"}
         </h1>
 
         <p>

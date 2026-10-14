@@ -24,6 +24,9 @@ function parseImovelForm(formData: FormData) {
     destaque: !!data.destaque,
     mobiliado: !!data.mobiliado,
     aceitaPet: !!data.aceitaPet,
+    // Valor e descrição do condomínio só valem quando há condomínio.
+    valorCondominio: data.temCondominio ? data.valorCondominio : null,
+    condominioDescricao: data.temCondominio ? data.condominioDescricao || null : null,
     proprietarioId: data.proprietarioId || null,
     // O inquilino só faz sentido enquanto o imóvel está alugado.
     inquilinoId: data.status === "ALUGADO" ? data.inquilinoId || null : null,

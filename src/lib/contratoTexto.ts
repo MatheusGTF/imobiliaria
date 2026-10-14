@@ -1,4 +1,5 @@
 import { formatCurrency, formatDate } from "@/lib/format";
+import { ehNaoResidencial } from "@/lib/constants";
 import { numeroPorExtenso, mesesEntre } from "@/lib/extenso";
 import type { Contrato, Empresa, Imovel, Inquilino, Proprietario } from "@prisma/client";
 
@@ -20,6 +21,12 @@ export function enderecoImovel(imovel: Imovel) {
 const DESCRICAO_TIPO: Record<string, string> = {
   APARTAMENTO: "um apartamento",
   CASA: "uma casa",
+  SOBRADO: "um sobrado",
+  KITNET: "uma kitnet",
+  CHACARA: "uma chácara/sítio",
+  GALPAO: "um galpão/barracão",
+  SALA_COMERCIAL: "uma sala comercial",
+  PREDIO: "um prédio/imóvel inteiro",
   COMERCIAL: "um imóvel comercial",
   TERRENO: "um terreno",
   OUTRO: "um imóvel",
@@ -30,7 +37,29 @@ export function descricaoTipoImovel(tipo: string) {
 }
 
 export function finalidadeUso(tipo: string) {
-  return tipo === "COMERCIAL" ? "comerciais" : "residenciais";
+  return ehNaoResidencial(tipo) ? "comerciais" : "residenciais";
+}
+
+/**
+ * Texto da cláusula de despesas. Sem água/energia inclusas no aluguel, é o
+ * texto padrão de sempre; com inclusão, o texto passa a dizer que o aluguel
+ * já cobre esse consumo e o restante continua com a LOCATÁRIA.
+ */
+export function clausulaDespesas(imovel: { aguaInclusa: boolean; energiaInclusa: boolean }) {
+  const incluso = [
+    imovel.aguaInclusa ? "água" : null,
+    imovel.energiaInclusa ? "energia elétrica" : null,
+  ].filter(Boolean) as string[];
+
+  const consumos = ["água", "energia elétrica", "gás", "internet"].filter((c) => !incluso.includes(c));
+  const iptu =
+    "As despesas tributárias, como o IPTU, serão de responsabilidade do proprietário do imóvel.";
+
+  if (incluso.length === 0) {
+    return `Todas as despesas diretamente ligadas ao uso do imóvel, tais como água, energia elétrica, gás, internet e demais consumos, serão de responsabilidade da LOCATÁRIA. ${iptu}`;
+  }
+
+  return `O valor do aluguel já inclui o consumo de ${incluso.join(" e de ")}. As demais despesas diretamente ligadas ao uso do imóvel, tais como ${consumos.join(", ")} e demais consumos, serão de responsabilidade da LOCATÁRIA. ${iptu}`;
 }
 
 export function qualificacaoEmpresa(empresa: Empresa) {

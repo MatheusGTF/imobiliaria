@@ -17,6 +17,9 @@ import {
   MessageCircle,
   MapPin,
   ArrowLeft,
+  Droplets,
+  Zap,
+  Building,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +57,10 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
     imovel.banheiros != null ||
     imovel.vagas != null ||
     imovel.mobiliado ||
-    imovel.aceitaPet;
+    imovel.aceitaPet ||
+    imovel.aguaInclusa ||
+    imovel.energiaInclusa ||
+    imovel.temCondominio;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -149,6 +155,22 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
                   <PawPrint size={18} className="text-brand-500" /> Aceita pet
                 </span>
               )}
+              {imovel.aguaInclusa && (
+                <span className="flex items-center gap-2">
+                  <Droplets size={18} className="text-brand-500" /> Água inclusa
+                </span>
+              )}
+              {imovel.energiaInclusa && (
+                <span className="flex items-center gap-2">
+                  <Zap size={18} className="text-brand-500" /> Energia elétrica inclusa
+                </span>
+              )}
+              {imovel.temCondominio && (
+                <span className="flex items-center gap-2">
+                  <Building size={18} className="text-brand-500" /> Condomínio
+                  {imovel.valorCondominio ? ` ${formatCurrency(imovel.valorCondominio)}` : ""}
+                </span>
+              )}
             </div>
           )}
 
@@ -156,6 +178,15 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
             <div className="mt-6">
               <h2 className="mb-2 font-display font-bold text-ink-900">Descrição</h2>
               <p className="whitespace-pre-wrap leading-relaxed text-ink-600">{imovel.descricao}</p>
+            </div>
+          )}
+
+          {imovel.temCondominio && imovel.condominioDescricao && (
+            <div className="mt-6">
+              <h2 className="mb-2 font-display font-bold text-ink-900">Como funciona o condomínio</h2>
+              <p className="whitespace-pre-wrap leading-relaxed text-ink-600">
+                {imovel.condominioDescricao}
+              </p>
             </div>
           )}
         </div>

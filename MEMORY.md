@@ -153,6 +153,19 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   limpa (`parseImovelForm`). A lista do `/admin` mostra proprietário e
   inquilino; o portal público **nunca** mostra. Excluir inquilino registrado
   em imóvel é recusado.
+- **Tipos de imóvel e despesas** (out/2026): `TIPOS_IMOVEL` em
+  `src/lib/constants.ts` (Casa, Sobrado, Apartamento, Kitnet, Terreno,
+  Chácara/Sítio, Galpão/Barracão, Sala comercial, Prédio/Imóvel inteiro,
+  Comercial legado, Outro) — `tipo` é string livre, sem enum no banco. A
+  vitrine da home mostra Casa/Apartamento/Terreno sempre e os outros tipos só
+  com disponível (`TIPOS_VITRINE_FIXOS`). `ehNaoResidencial()` (Comercial,
+  Galpão, Sala comercial) decide "residenciais/comerciais" e o título do
+  contrato. `Imovel.aguaInclusa/energiaInclusa/temCondominio/
+  condominioDescricao` (form: `imoveis/DespesasFields.tsx`); valor do
+  condomínio só é gravado se `temCondominio`. O site só mostra os selos quando
+  "Sim" (nunca afirma "não inclusa", pois imóveis antigos nasceram com Não por
+  padrão). A cláusula de despesas do contrato (`clausulaDespesas`) muda só
+  quando água/energia estão marcadas; sem marcação o texto é o de sempre.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

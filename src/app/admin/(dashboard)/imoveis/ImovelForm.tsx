@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { TIPOS_IMOVEL } from "@/lib/constants";
 import { FinalidadeFields } from "./FinalidadeFields";
 import { StatusEPessoasFields } from "./StatusEPessoasFields";
+import { DespesasFields } from "./DespesasFields";
 import type { Imovel, Inquilino, Proprietario } from "@prisma/client";
 
 export function ImovelForm({
@@ -27,7 +28,7 @@ export function ImovelForm({
           <Textarea label="Descrição" name="descricao" defaultValue={imovel?.descricao ?? ""} />
         </div>
 
-        <Select label="Tipo" name="tipo" defaultValue={imovel?.tipo ?? "APARTAMENTO"} required>
+        <Select label="Tipo" name="tipo" defaultValue={imovel?.tipo ?? "CASA"} required>
           {TIPOS_IMOVEL.map((t) => (
             <option key={t.value} value={t.value}>
               {t.label}
@@ -80,7 +81,6 @@ export function ImovelForm({
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <FinalidadeFields imovel={imovel} />
-          <MoneyField label="Condomínio" name="valorCondominio" defaultValue={imovel?.valorCondominio} />
           <MoneyField label="IPTU" name="valorIptu" defaultValue={imovel?.valorIptu} />
           <Input
             label="Área (m²)"
@@ -100,6 +100,19 @@ export function ImovelForm({
           />
           <Input label="Vagas" name="vagas" type="number" min={0} defaultValue={imovel?.vagas ?? ""} />
         </div>
+      </section>
+
+      <section>
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Água, energia e condomínio
+        </h3>
+        <DespesasFields
+          aguaInclusa={imovel?.aguaInclusa ?? false}
+          energiaInclusa={imovel?.energiaInclusa ?? false}
+          temCondominio={imovel?.temCondominio ?? false}
+          valorCondominio={imovel?.valorCondominio ?? null}
+          condominioDescricao={imovel?.condominioDescricao ?? null}
+        />
       </section>
 
       <div className="flex justify-end gap-3">

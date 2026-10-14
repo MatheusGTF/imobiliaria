@@ -1,11 +1,30 @@
 import Link from "next/link";
-import { Home, Building2, Trees, Store, Boxes, ArrowUpRight } from "lucide-react";
+import {
+  Home,
+  Building2,
+  Building,
+  Trees,
+  TreeDeciduous,
+  Store,
+  Boxes,
+  DoorOpen,
+  Layers,
+  Warehouse,
+  Briefcase,
+  ArrowUpRight,
+} from "lucide-react";
 import { labelFor, TIPOS_IMOVEL } from "@/lib/constants";
 
 const ICONE: Record<string, typeof Home> = {
   CASA: Home,
+  SOBRADO: Layers,
   APARTAMENTO: Building2,
+  KITNET: DoorOpen,
   TERRENO: Trees,
+  CHACARA: TreeDeciduous,
+  GALPAO: Warehouse,
+  SALA_COMERCIAL: Briefcase,
+  PREDIO: Building,
   COMERCIAL: Store,
   OUTRO: Boxes,
 };

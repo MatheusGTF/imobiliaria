@@ -20,6 +20,12 @@ const intFromForm = () =>
     .transform((v) => (v && v.trim() !== "" ? parseInt(v, 10) : undefined))
     .refine((v) => v === undefined || !Number.isNaN(v), "Valor inválido");
 
+// <select> "Sim/Não" do formulário → boolean (ausente = Não)
+const simNao = z
+  .enum(["SIM", "NAO"])
+  .optional()
+  .transform((v) => v === "SIM");
+
 export const imovelSchema = z
   .object({
     titulo: z.string().min(3, "Informe um título"),
@@ -47,6 +53,11 @@ export const imovelSchema = z
     vagas: intFromForm(),
     mobiliado: z.coerce.boolean().optional(),
     aceitaPet: z.coerce.boolean().optional(),
+
+    aguaInclusa: simNao,
+    energiaInclusa: simNao,
+    temCondominio: simNao,
+    condominioDescricao: optionalString,
 
     proprietarioId: optionalString,
     inquilinoId: optionalString,

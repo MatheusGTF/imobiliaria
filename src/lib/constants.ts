@@ -1,13 +1,43 @@
+// A ordem aqui é a ordem das opções no cadastro do imóvel.
 export const TIPOS_IMOVEL = [
-  { value: "APARTAMENTO", label: "Apartamento", plural: "Apartamentos" },
   { value: "CASA", label: "Casa", plural: "Casas" },
-  { value: "COMERCIAL", label: "Comercial", plural: "Imóveis comerciais" },
+  { value: "SOBRADO", label: "Sobrado", plural: "Sobrados" },
+  { value: "APARTAMENTO", label: "Apartamento", plural: "Apartamentos" },
+  { value: "KITNET", label: "Kitnet", plural: "Kitnets" },
   { value: "TERRENO", label: "Terreno", plural: "Terrenos" },
+  { value: "CHACARA", label: "Chácara/Sítio", plural: "Chácaras e sítios" },
+  { value: "GALPAO", label: "Galpão/Barracão", plural: "Galpões e barracões" },
+  { value: "SALA_COMERCIAL", label: "Sala comercial", plural: "Salas comerciais" },
+  { value: "PREDIO", label: "Prédio/Imóvel inteiro", plural: "Prédios e imóveis inteiros" },
+  { value: "COMERCIAL", label: "Comercial", plural: "Imóveis comerciais" },
   { value: "OUTRO", label: "Outro", plural: "Outros imóveis" },
 ] as const;
 
 // Ordem em que os tipos aparecem na vitrine "consulte por tipo"
-export const TIPOS_VITRINE = ["CASA", "APARTAMENTO", "TERRENO", "COMERCIAL", "OUTRO"] as const;
+export const TIPOS_VITRINE = [
+  "CASA",
+  "APARTAMENTO",
+  "TERRENO",
+  "SOBRADO",
+  "KITNET",
+  "CHACARA",
+  "GALPAO",
+  "SALA_COMERCIAL",
+  "PREDIO",
+  "COMERCIAL",
+  "OUTRO",
+] as const;
+
+// Esses sempre aparecem na vitrine da home (mesmo sem imóvel disponível);
+// os demais só aparecem quando há pelo menos um disponível.
+export const TIPOS_VITRINE_FIXOS = ["CASA", "APARTAMENTO", "TERRENO"] as const;
+
+// Tipos cujo uso é comercial/não residencial (para o texto do contrato).
+const TIPOS_NAO_RESIDENCIAIS: readonly string[] = ["COMERCIAL", "GALPAO", "SALA_COMERCIAL"];
+
+export function ehNaoResidencial(tipo: string) {
+  return TIPOS_NAO_RESIDENCIAIS.includes(tipo);
+}
 
 export const FINALIDADE_IMOVEL = [
   { value: "ALUGUEL", label: "Aluguel" },

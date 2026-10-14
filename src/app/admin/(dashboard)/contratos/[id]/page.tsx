@@ -53,6 +53,12 @@ export default async function ContratoDetailPage({ params }: { params: Promise<{
             <dt className="text-slate-500">Término</dt>
             <dd className="font-medium text-slate-900">{formatDate(contrato.dataFim)}</dd>
           </div>
+          {contrato.dataEntrada && (
+            <div>
+              <dt className="text-slate-500">Entrada do inquilino</dt>
+              <dd className="font-medium text-slate-900">{formatDate(contrato.dataEntrada)}</dd>
+            </div>
+          )}
           <div>
             <dt className="text-slate-500">Vencimento</dt>
             <dd className="font-medium text-slate-900">Todo dia {contrato.diaVencimento}</dd>

@@ -16,12 +16,14 @@ export function DespesasFields({
   temCondominio,
   valorCondominio,
   condominioDescricao,
+  iptuResponsavel,
 }: {
   aguaInclusa: boolean;
   energiaInclusa: boolean;
   temCondominio: boolean;
   valorCondominio: number | null;
   condominioDescricao: string | null;
+  iptuResponsavel: string;
 }) {
   const [condominio, setCondominio] = useState(simNao(temCondominio));
 
@@ -39,6 +41,15 @@ export function DespesasFields({
       >
         <option value="NAO">Não</option>
         <option value="SIM">Sim</option>
+      </Select>
+
+      <Select
+        label="IPTU pago por"
+        name="iptuResponsavel"
+        defaultValue={iptuResponsavel === "LOCATARIO" ? "LOCATARIO" : "PROPRIETARIO"}
+      >
+        <option value="PROPRIETARIO">Proprietário</option>
+        <option value="LOCATARIO">Inquilino</option>
       </Select>
 
       <Select

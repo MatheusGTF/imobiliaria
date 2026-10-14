@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/constants";
-import { Building2, FileText, Wallet, AlertTriangle } from "lucide-react";
+import { avisoTermino, limiteAvisoTermino, DIAS_AVISO_TERMINO } from "@/lib/avisos";
+import { Building2, FileText, Wallet, AlertTriangle, BellRing } from "lucide-react";
 
 export default async function DashboardPage() {
   const hoje = new Date();
@@ -18,6 +19,7 @@ export default async function DashboardPage() {
     contratosAtivos,
     pagamentosDoMes,
     proximosVencimentos,
+    contratosAVencer,
   ] = await Promise.all([
     prisma.imovel.count({ where: { status: "DISPONIVEL" } }),
     prisma.imovel.count({ where: { status: "ALUGADO" } }),
@@ -29,6 +31,12 @@ export default async function DashboardPage() {
       include: { contrato: { include: { imovel: true, inquilino: true } } },
       orderBy: { dataVencimento: "asc" },
       take: 8,
+    }),
+    // Contratos ativos que terminam em breve (ou que já passaram do fim).
+    prisma.contrato.findMany({
+      where: { status: "ATIVO", dataFim: { lte: limiteAvisoTermino(hoje) } },
+      include: { imovel: { include: { proprietario: true } }, inquilino: true },
+      orderBy: { dataFim: "asc" },
     }),
   ]);
 
@@ -80,6 +88,50 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      <Card>
+        <div className="mb-1 flex items-center gap-2">
+          <BellRing className="text-amber-600" size={18} />
+          <h2 className="font-medium text-slate-900">Avisos de término e renovação de contrato</h2>
+        </div>
+        <p className="mb-3 text-xs text-slate-500">
+          Contratos ativos que terminam em até {DIAS_AVISO_TERMINO} dias (ou já passaram do prazo).
+          Hora de conversar com o proprietário e o inquilino sobre a renovação.
+        </p>
+        {contratosAVencer.length === 0 ? (
+          <p className="text-sm text-slate-500">Nenhum contrato perto do vencimento.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100 text-sm">
+            {contratosAVencer.map((c) => {
+              const aviso = avisoTermino(c.dataFim, hoje);
+              const proprietario = c.imovel.proprietario;
+              return (
+                <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                  <div>
+                    <Link href={`/admin/contratos/${c.id}`} className="font-medium text-slate-900 hover:underline">
+                      {c.imovel.titulo}
+                    </Link>
+                    <p className="text-slate-500">
+                      Inquilino: {c.inquilino.nome}
+                      {c.inquilino.telefone ? ` · ${c.inquilino.telefone}` : ""}
+                    </p>
+                    {proprietario && (
+                      <p className="text-slate-500">
+                        Proprietário: {proprietario.nome}
+                        {proprietario.telefone ? ` · ${proprietario.telefone}` : ""}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-500">Termina em {formatDate(c.dataFim)}</span>
+                    {aviso && <Badge color={aviso.cor}>{aviso.texto}</Badge>}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Card>
 
       <Card>
         <div className="mb-4 flex items-center gap-2">

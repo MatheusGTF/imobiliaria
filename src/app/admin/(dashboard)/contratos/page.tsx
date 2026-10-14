@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { STATUS_CONTRATO, labelFor } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { avisoTermino } from "@/lib/avisos";
 import { Plus, FileText } from "lucide-react";
 
 export default async function ContratosPage() {
@@ -44,6 +45,7 @@ export default async function ContratosPage() {
             <tbody className="divide-y divide-slate-100">
               {contratos.map((c) => {
                 const status = STATUS_CONTRATO.find((s) => s.value === c.status);
+                const aviso = c.status === "ATIVO" ? avisoTermino(c.dataFim) : null;
                 return (
                   <tr key={c.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3">
@@ -54,6 +56,11 @@ export default async function ContratosPage() {
                     <td className="px-4 py-3 text-slate-600">{c.inquilino.nome}</td>
                     <td className="px-4 py-3 text-slate-600">
                       {formatDate(c.dataInicio)} – {formatDate(c.dataFim)}
+                      {aviso && (
+                        <div className="mt-1">
+                          <Badge color={aviso.cor}>{aviso.texto}</Badge>
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-600">Todo dia {c.diaVencimento}</td>
                     <td className="px-4 py-3 text-slate-600">{formatCurrency(c.valorAluguel)}</td>

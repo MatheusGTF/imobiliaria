@@ -166,6 +166,18 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   "Sim" (nunca afirma "não inclusa", pois imóveis antigos nasceram com Não por
   padrão). A cláusula de despesas do contrato (`clausulaDespesas`) muda só
   quando água/energia estão marcadas; sem marcação o texto é o de sempre.
+- **IPTU, entrada e avisos de término** (out/2026): `Imovel.iptuResponsavel`
+  (`PROPRIETARIO` padrão | `LOCATARIO`, select em `DespesasFields`) troca a
+  frase do IPTU em `clausulaDespesas`. `Contrato.dataEntrada` (opcional, quando
+  o inquilino recebe as chaves) é preenchida em `contratos/novo` e aparece no
+  detalhe do contrato — não entra no texto do documento. **Avisos**:
+  `src/lib/avisos.ts` (`DIAS_AVISO_TERMINO = 60`) alimenta o card "Avisos de
+  término e renovação" do dashboard (contratos ATIVOS com `dataFim` em até 60
+  dias ou já vencidos, com telefone de proprietário e inquilino) e o selo
+  "Vence em N dias" na lista de contratos. É só **aviso na tela**: não há envio
+  de e-mail/WhatsApp (precisaria de provedor + cron — decisão do cliente). A
+  separação imóvel × locação já existe: o imóvel é cadastrado uma vez; cada
+  locação é um `Contrato`, e encerrar + novo contrato mantém o histórico.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

@@ -86,6 +86,13 @@ export default async function NovoContratoPage() {
           />
         </div>
 
+        <Input
+          label="Data de entrada do inquilino"
+          name="dataEntrada"
+          type="date"
+          hint="Opcional. Quando o inquilino recebe as chaves, se for diferente do início do contrato."
+        />
+
         <MoneyField
           label="Valor da caução"
           name="valorCaucao"

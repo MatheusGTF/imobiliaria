@@ -58,6 +58,7 @@ export const imovelSchema = z
     energiaInclusa: simNao,
     temCondominio: simNao,
     condominioDescricao: optionalString,
+    iptuResponsavel: z.enum(["PROPRIETARIO", "LOCATARIO"]).optional().default("PROPRIETARIO"),
 
     proprietarioId: optionalString,
     inquilinoId: optionalString,
@@ -129,6 +130,7 @@ export const contratoSchema = z.object({
   inquilinoId: z.string().min(1, "Selecione o inquilino"),
   dataInicio: z.string().min(1, "Informe a data de início"),
   dataFim: z.string().min(1, "Informe a data de término"),
+  dataEntrada: optionalString,
   diaVencimento: intFromForm().refine(
     (v) => v !== undefined && v >= 1 && v <= 31,
     "Informe um dia entre 1 e 31"

@@ -104,7 +104,7 @@ export function ImovelForm({
 
       <section>
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Água, energia e condomínio
+          Água, energia, IPTU e condomínio
         </h3>
         <DespesasFields
           aguaInclusa={imovel?.aguaInclusa ?? false}
@@ -112,6 +112,7 @@ export function ImovelForm({
           temCondominio={imovel?.temCondominio ?? false}
           valorCondominio={imovel?.valorCondominio ?? null}
           condominioDescricao={imovel?.condominioDescricao ?? null}
+          iptuResponsavel={imovel?.iptuResponsavel ?? "PROPRIETARIO"}
         />
       </section>
 

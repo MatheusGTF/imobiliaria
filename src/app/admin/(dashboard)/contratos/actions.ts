@@ -28,6 +28,7 @@ export async function createContrato(formData: FormData) {
       inquilinoId: data.inquilinoId,
       dataInicio,
       dataFim,
+      dataEntrada: data.dataEntrada ? new Date(data.dataEntrada) : null,
       diaVencimento: data.diaVencimento!,
       valorAluguel: data.valorAluguel!,
       valorCondominio: data.valorCondominio,

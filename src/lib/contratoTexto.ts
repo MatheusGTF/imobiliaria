@@ -45,7 +45,11 @@ export function finalidadeUso(tipo: string) {
  * texto padrão de sempre; com inclusão, o texto passa a dizer que o aluguel
  * já cobre esse consumo e o restante continua com a LOCATÁRIA.
  */
-export function clausulaDespesas(imovel: { aguaInclusa: boolean; energiaInclusa: boolean }) {
+export function clausulaDespesas(imovel: {
+  aguaInclusa: boolean;
+  energiaInclusa: boolean;
+  iptuResponsavel?: string | null;
+}) {
   const incluso = [
     imovel.aguaInclusa ? "água" : null,
     imovel.energiaInclusa ? "energia elétrica" : null,
@@ -53,7 +57,9 @@ export function clausulaDespesas(imovel: { aguaInclusa: boolean; energiaInclusa:
 
   const consumos = ["água", "energia elétrica", "gás", "internet"].filter((c) => !incluso.includes(c));
   const iptu =
-    "As despesas tributárias, como o IPTU, serão de responsabilidade do proprietário do imóvel.";
+    imovel.iptuResponsavel === "LOCATARIO"
+      ? "As despesas tributárias, como o IPTU, serão de responsabilidade da LOCATÁRIA."
+      : "As despesas tributárias, como o IPTU, serão de responsabilidade do proprietário do imóvel.";
 
   if (incluso.length === 0) {
     return `Todas as despesas diretamente ligadas ao uso do imóvel, tais como água, energia elétrica, gás, internet e demais consumos, serão de responsabilidade da LOCATÁRIA. ${iptu}`;

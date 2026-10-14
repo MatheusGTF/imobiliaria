@@ -178,6 +178,21 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   de e-mail/WhatsApp (precisaria de provedor + cron — decisão do cliente). A
   separação imóvel × locação já existe: o imóvel é cadastrado uma vez; cada
   locação é um `Contrato`, e encerrar + novo contrato mantém o histórico.
+- **Imóvel × Inquilino × Contrato conectados** (out/2026): o vínculo nasce no
+  **contrato** (`createContrato` marca o imóvel ALUGADO + `inquilinoId`).
+  `/admin/imoveis` é uma tabela (foto, título, tipo, endereço, bairro, valor,
+  status, inquilino atual, proprietário) com busca `?q=` (`BuscaForm`, GET,
+  server-side; `tiposQueCasam()` em `src/lib/locacao.ts` casa o nome do tipo).
+  `/admin/imoveis/[id]` mostra dados + **Locação atual** + **Histórico de
+  locações** (todos os contratos do imóvel) e, abaixo, fotos/edição/venda/
+  exclusão. `/admin/inquilinos` lista imóvel alugado, endereço, início/término,
+  aluguel, status (Ativo / Sem locação ativa) e nº de contratos;
+  `/admin/inquilinos/[id]` mostra imóvel, contrato, despesas e histórico.
+  **Encerrar contrato** agora tem o checkbox "o inquilino já saiu" (padrão
+  marcado): desmarcado, o contrato encerra mas o imóvel segue ALUGADO e a tela
+  do imóvel oferece "Confirmar saída" (`liberarImovel` em `imoveis/actions.ts`).
+  `/admin/contratos/novo?imovelId=…&inquilinoId=…` pré-seleciona. Contratos
+  nunca são apagados na troca de inquilino — só ficam ENCERRADO.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

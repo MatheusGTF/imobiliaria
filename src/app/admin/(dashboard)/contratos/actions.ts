@@ -60,12 +60,21 @@ export async function createContrato(formData: FormData) {
 
   revalidatePath("/admin/contratos");
   revalidatePath("/admin/imoveis");
+  revalidatePath(`/admin/imoveis/${data.imovelId}`);
+  revalidatePath("/admin/inquilinos");
   revalidarPortal();
   redirect(`/admin/contratos/${contrato.id}/documento`);
 }
 
+/**
+ * Encerra a locação e mantém o contrato (e as parcelas pagas) como histórico.
+ * O imóvel só volta a "Disponível" se a saída do inquilino foi confirmada
+ * (checkbox `liberarImovel`, marcado por padrão). Sem confirmar, o imóvel
+ * segue "Alugado" até alguém liberá-lo na tela do imóvel.
+ */
 export async function encerrarContrato(formData: FormData) {
   const id = formData.get("id") as string;
+  const liberarImovel = formData.get("liberarImovel") === "on";
 
   const contrato = await prisma.contrato.findUnique({ where: { id } });
   if (!contrato) throw new Error("Contrato não encontrado.");
@@ -80,7 +89,7 @@ export async function encerrarContrato(formData: FormData) {
   const outrosAtivos = await prisma.contrato.count({
     where: { imovelId: contrato.imovelId, status: "ATIVO", id: { not: id } },
   });
-  if (outrosAtivos === 0) {
+  if (outrosAtivos === 0 && liberarImovel) {
     await prisma.imovel.update({
       where: { id: contrato.imovelId },
       data: { status: "DISPONIVEL", inquilinoId: null },
@@ -90,6 +99,8 @@ export async function encerrarContrato(formData: FormData) {
   revalidatePath("/admin/contratos");
   revalidatePath(`/admin/contratos/${id}`);
   revalidatePath("/admin/imoveis");
+  revalidatePath(`/admin/imoveis/${contrato.imovelId}`);
+  revalidatePath("/admin/inquilinos");
   revalidarPortal();
 }
 

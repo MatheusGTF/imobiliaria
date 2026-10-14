@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/Button";
 import { ContratoImovelFields } from "../ContratoImovelFields";
 import { createContrato } from "../actions";
 
-export default async function NovoContratoPage() {
+export default async function NovoContratoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ imovelId?: string; inquilinoId?: string }>;
+}) {
+  const { imovelId, inquilinoId } = await searchParams;
   const [imoveis, inquilinos] = await Promise.all([
     prisma.imovel.findMany({
       where: { status: "DISPONIVEL", finalidade: { in: ["ALUGUEL", "AMBOS"] } },
@@ -37,6 +42,7 @@ export default async function NovoContratoPage() {
       <h1 className="mb-6 text-2xl font-semibold text-slate-900">Novo contrato</h1>
       <form action={createContrato} className="space-y-6">
         <ContratoImovelFields
+          imovelIdInicial={imovelId}
           imoveis={imoveis.map((i) => ({
             id: i.id,
             titulo: i.titulo,
@@ -48,7 +54,12 @@ export default async function NovoContratoPage() {
           }))}
         />
 
-        <Select label="Inquilino" name="inquilinoId" required defaultValue="">
+        <Select
+          label="Inquilino"
+          name="inquilinoId"
+          required
+          defaultValue={inquilinos.some((i) => i.id === inquilinoId) ? inquilinoId : ""}
+        >
           <option value="" disabled>
             Selecione um inquilino
           </option>

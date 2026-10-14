@@ -31,8 +31,17 @@ export default async function ContratoDetailPage({ params }: { params: Promise<{
     <div className="max-w-4xl space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{contrato.imovel.titulo}</h1>
-          <p className="text-sm text-slate-500">Inquilino: {contrato.inquilino.nome}</p>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            <Link href={`/admin/imoveis/${contrato.imovelId}`} className="hover:underline">
+              {contrato.imovel.titulo}
+            </Link>
+          </h1>
+          <p className="text-sm text-slate-500">
+            Inquilino:{" "}
+            <Link href={`/admin/inquilinos/${contrato.inquilinoId}`} className="hover:underline">
+              {contrato.inquilino.nome}
+            </Link>
+          </p>
         </div>
         <Link href="/admin/contratos" className="text-sm text-slate-500 hover:underline">
           Voltar para a lista
@@ -97,9 +106,18 @@ export default async function ContratoDetailPage({ params }: { params: Promise<{
             </Button>
           </Link>
           {contrato.status === "ATIVO" && (
-            <form action={encerrarContrato}>
+            <form action={encerrarContrato} className="flex flex-wrap items-center gap-3">
               <input type="hidden" name="id" value={contrato.id} />
-              <ConfirmButton confirmMessage="Encerrar este contrato? Pagamentos pendentes futuros serão cancelados.">
+              <label className="flex items-center gap-2 text-sm text-slate-600">
+                <input
+                  type="checkbox"
+                  name="liberarImovel"
+                  defaultChecked
+                  className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+                />
+                O inquilino já saiu: deixar o imóvel como Disponível
+              </label>
+              <ConfirmButton confirmMessage="Encerrar este contrato? Pagamentos pendentes futuros serão cancelados. O contrato e o histórico de pagamentos continuam salvos.">
                 Encerrar contrato
               </ConfirmButton>
             </form>

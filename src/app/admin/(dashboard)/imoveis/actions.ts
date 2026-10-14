@@ -96,6 +96,25 @@ export async function reabrirAnuncio(formData: FormData) {
   revalidatePath(`/admin/imoveis/${id}`);
 }
 
+/**
+ * Confirma a saída do inquilino: o imóvel volta a "Disponível" e o inquilino
+ * atual é desvinculado. O histórico de contratos não é tocado. Se ainda houver
+ * contrato ativo, não faz nada (o contrato precisa ser encerrado antes).
+ */
+export async function liberarImovel(formData: FormData) {
+  const id = formData.get("id") as string;
+
+  const ativos = await prisma.contrato.count({ where: { imovelId: id, status: "ATIVO" } });
+  if (ativos === 0) {
+    await prisma.imovel.update({ where: { id }, data: { status: "DISPONIVEL", inquilinoId: null } });
+  }
+
+  revalidatePath("/admin/imoveis");
+  revalidatePath(`/admin/imoveis/${id}`);
+  revalidatePath("/admin/inquilinos");
+  revalidarPortal();
+}
+
 export async function deleteImovel(id: string): Promise<ResultadoAcao> {
   const contratosVinculados = await prisma.contrato.count({ where: { imovelId: id } });
   if (contratosVinculados > 0) {

@@ -212,6 +212,15 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   administração incide só sobre o aluguel, não sobre condomínio/IPTU).
   `Contrato.taxaAdministracaoPercentual` continua na tabela como override
   opcional, mas o formulário de contrato não pede mais.
+- **`/admin` no celular**: abaixo de `md` o menu vira barra no topo (rolagem
+  lateral) e tabelas usam `overflow-x-auto` — `overflow-hidden` em tabela corta
+  colunas sem rolagem (foi o "erro" visto em /admin/contratos). Ao criar tela
+  nova, testar em 375px (checar `documentElement.scrollWidth`).
+- **Testar o /admin localmente sem Postgres**: `embedded-postgres` instalado
+  numa pasta fora do projeto (porta ≠ 5432), `prisma migrate deploy` com
+  `POSTGRES_PRISMA_URL`/`DATABASE_URL_UNPOOLED` exportadas, usuário de teste
+  criado direto no banco e um `.env.local` temporário (gitignored — apagar no
+  fim, junto com `.next`). Nunca usar a senha real de produção.
 - **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
   foi só no portal público até agora.
 - `start.bat` — script para leigos rodarem o projeto localmente (instala

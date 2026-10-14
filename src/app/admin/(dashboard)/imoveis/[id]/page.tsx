@@ -365,7 +365,10 @@ export default async function ImovelDetalhePage({ params }: { params: Promise<{ 
       <section id="fotos" className="scroll-mt-6">
         <Card>
           <h2 className="mb-4 text-lg font-medium text-slate-900">Fotos</h2>
-          <FotoManager imovelId={imovel.id} fotos={imovel.fotos} />
+          <FotoManager
+            imovelId={imovel.id}
+            fotos={imovel.fotos.map((f) => ({ id: f.id, url: f.url, capa: f.capa, ordem: f.ordem }))}
+          />
         </Card>
       </section>
 

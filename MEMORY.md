@@ -193,6 +193,15 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   do imóvel oferece "Confirmar saída" (`liberarImovel` em `imoveis/actions.ts`).
   `/admin/contratos/novo?imovelId=…&inquilinoId=…` pré-seleciona. Contratos
   nunca são apagados na troca de inquilino — só ficam ENCERRADO.
+- **Capa e ordem das fotos**: a **primeira foto é a capa** (`Foto.capa` =
+  posição 0, sempre sincronizado). `imoveis/[id]/FotoManager.tsx` é client com
+  `@dnd-kit` (arrastar com mouse; no celular segurar ~200ms; setas e estrela
+  "Usar como capa" como alternativa). Mudanças ficam locais até clicar em
+  "Salvar ordem e capa" → `reordenarFotos(imovelId, ids)` em
+  `imoveis/actions.ts` (grava `ordem` e `capa` numa transação). Os antigos
+  `moveFoto`/`setFotoCapa` foram removidos. Ao testar o drag localmente sem
+  banco, use uma página temporária com fotos `data:` e apague depois (e
+  limpe `.next`, senão o `tsc` do build reclama da rota removida).
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

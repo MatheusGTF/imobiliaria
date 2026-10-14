@@ -186,36 +186,37 @@ export async function deleteFoto(formData: FormData) {
   revalidarPortal();
 }
 
-export async function setFotoCapa(formData: FormData) {
-  const id = formData.get("id") as string;
-  const imovelId = formData.get("imovelId") as string;
+/**
+ * Grava a ordem das fotos exatamente como a pessoa deixou na tela. A primeira
+ * foto da lista é sempre a capa (`capa`), então escolher a capa e ordenar são a
+ * mesma coisa: quem fica em primeiro aparece no portal e nos cards.
+ */
+export async function reordenarFotos(imovelId: string, idsEmOrdem: string[]): Promise<ResultadoAcao> {
+  try {
+    const existentes = await prisma.foto.findMany({
+      where: { imovelId },
+      orderBy: { ordem: "asc" },
+      select: { id: true },
+    });
+    const validos = new Set(existentes.map((f) => f.id));
 
-  await prisma.foto.updateMany({ where: { imovelId }, data: { capa: false } });
-  await prisma.foto.update({ where: { id }, data: { capa: true } });
+    // Ignora ids que não são deste imóvel; fotos que ficaram de fora (ex.:
+    // enviadas em outra aba) vão para o fim, sem perder nenhuma.
+    const pedidos = idsEmOrdem.filter((id, i) => validos.has(id) && idsEmOrdem.indexOf(id) === i);
+    const restantes = existentes.map((f) => f.id).filter((id) => !pedidos.includes(id));
+    const ordemFinal = [...pedidos, ...restantes];
 
-  revalidatePath(`/admin/imoveis/${imovelId}`);
-  revalidarPortal();
-}
+    await prisma.$transaction(
+      ordemFinal.map((id, index) =>
+        prisma.foto.update({ where: { id }, data: { ordem: index, capa: index === 0 } }),
+      ),
+    );
 
-export async function moveFoto(formData: FormData) {
-  const id = formData.get("id") as string;
-  const imovelId = formData.get("imovelId") as string;
-  const direction = formData.get("direction") as "up" | "down";
-
-  const fotos = await prisma.foto.findMany({ where: { imovelId }, orderBy: { ordem: "asc" } });
-  const index = fotos.findIndex((f) => f.id === id);
-  const swapIndex = direction === "up" ? index - 1 : index + 1;
-
-  if (index === -1 || swapIndex < 0 || swapIndex >= fotos.length) return;
-
-  const a = fotos[index];
-  const b = fotos[swapIndex];
-
-  await prisma.$transaction([
-    prisma.foto.update({ where: { id: a.id }, data: { ordem: b.ordem } }),
-    prisma.foto.update({ where: { id: b.id }, data: { ordem: a.ordem } }),
-  ]);
-
-  revalidatePath(`/admin/imoveis/${imovelId}`);
-  revalidarPortal();
+    revalidatePath(`/admin/imoveis/${imovelId}`);
+    revalidatePath("/admin/imoveis");
+    revalidarPortal();
+    return { ok: true };
+  } catch (e) {
+    return { error: (e as Error).message || "Não foi possível salvar a ordem das fotos." };
+  }
 }

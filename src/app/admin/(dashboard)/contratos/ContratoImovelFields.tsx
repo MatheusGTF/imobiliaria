@@ -28,9 +28,17 @@ function valoresDoImovel(imovel?: ImovelOption): Valores {
   };
 }
 
-export function ContratoImovelFields({ imoveis }: { imoveis: ImovelOption[] }) {
-  const [selecionadoId, setSelecionadoId] = useState(imoveis[0]?.id ?? "");
-  const [valores, setValores] = useState<Valores>(valoresDoImovel(imoveis[0]));
+export function ContratoImovelFields({
+  imoveis,
+  imovelIdInicial,
+}: {
+  imoveis: ImovelOption[];
+  imovelIdInicial?: string;
+}) {
+  // Vindo de "Novo contrato" na tela do imóvel, ele já chega selecionado.
+  const inicial = imoveis.find((i) => i.id === imovelIdInicial) ?? imoveis[0];
+  const [selecionadoId, setSelecionadoId] = useState(inicial?.id ?? "");
+  const [valores, setValores] = useState<Valores>(valoresDoImovel(inicial));
 
   function onSelecionarImovel(id: string) {
     setSelecionadoId(id);

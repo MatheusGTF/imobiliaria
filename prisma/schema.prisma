@@ -118,6 +118,7 @@ model Imovel {
   energiaInclusa       Boolean @default(false)
   temCondominio        Boolean @default(false)
   condominioDescricao  String?
+  iptuResponsavel      String  @default("PROPRIETARIO") // PROPRIETARIO | LOCATARIO
 
   // Preenchido quando a venda é concretizada (status = VENDIDO)
   dataVenda         DateTime?
@@ -160,6 +161,7 @@ model Contrato {
 
   dataInicio  DateTime
   dataFim     DateTime
+  dataEntrada DateTime? // quando o inquilino entrou no imóvel (chaves), se diferente do início
   diaVencimento Int    // dia do mês (1-31) de vencimento do aluguel
 
   valorAluguel              Float

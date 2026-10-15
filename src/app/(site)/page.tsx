@@ -47,7 +47,7 @@ export default async function HomePage() {
             O seu próximo endereço começa aqui.
           </h1>
           <p className="mt-4 max-w-xl text-lg text-white/80">
-            Casas, apartamentos e terrenos selecionados para alugar ou comprar
+            Encontre imóveis residenciais, comerciais e rurais para alugar ou comprar
             {cidade ? ` em ${cidade} e região` : ""}.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">

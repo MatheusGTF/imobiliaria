@@ -202,6 +202,13 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   `moveFoto`/`setFotoCapa` foram removidos. Ao testar o drag localmente sem
   banco, use uma página temporária com fotos `data:` e apague depois (e
   limpe `.next`, senão o `tsc` do build reclama da rota removida).
+- **Galeria de fotos no portal**: `src/components/site/GaleriaFotos.tsx`
+  (client) na página `/imoveis/[id]` — capa + miniaturas (no celular mostra
+  todas) e, ao clicar, um visualizador em tela cheia: setas, teclado ←/→/Esc,
+  deslizar o dedo, miniaturas e contador. A página só passa as fotos já na
+  ordem certa (capa primeiro). O cabeçalho do portal (`(site)/layout.tsx` +
+  `Logo.tsx`) deixa o nome quebrar linha no celular — antes o menu estourava
+  a largura da tela em 375px.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**

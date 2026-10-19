@@ -29,10 +29,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <div className="flex min-h-screen flex-col bg-white">
       <header className="sticky top-0 z-30 border-b border-ink-100 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Link href="/" aria-label={empresa.nome} className="shrink-0">
+          <Link href="/" aria-label={empresa.nome} className="min-w-0">
             <Logo nome={empresa.nome} logoUrl={empresa.logoUrl} />
           </Link>
-          <nav className="flex items-center gap-0.5 text-sm font-semibold text-ink-600 sm:gap-1">
+          <nav className="flex shrink-0 items-center gap-0.5 text-sm font-semibold text-ink-600 sm:gap-1">
             <Link href="/imoveis?finalidade=ALUGUEL" className={navLink}>
               Alugar
             </Link>

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getEmpresa } from "@/lib/empresa";
 import { formatCurrency, whatsappLink } from "@/lib/format";
 import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/constants";
 import { PrecoImovel } from "@/components/PrecoImovel";
+import { GaleriaFotos } from "@/components/site/GaleriaFotos";
 import {
   Bed,
   Bath,
@@ -13,7 +13,6 @@ import {
   Ruler,
   PawPrint,
   Sofa,
-  Building2,
   MessageCircle,
   MapPin,
   ArrowLeft,
@@ -37,8 +36,12 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
 
   if (!imovel || imovel.status === "INATIVO") notFound();
 
+  // A capa vem primeiro; o resto segue a ordem definida no painel.
   const capa = imovel.fotos.find((f) => f.capa) ?? imovel.fotos[0];
-  const outrasFotos = imovel.fotos.filter((f) => f.id !== capa?.id);
+  const fotosOrdenadas = (capa ? [capa, ...imovel.fotos.filter((f) => f.id !== capa.id)] : []).map((f) => ({
+    id: f.id,
+    url: f.url,
+  }));
 
   const interesse =
     aceitaAluguel(imovel.finalidade) && !aceitaVenda(imovel.finalidade)
@@ -71,45 +74,7 @@ export default async function ImovelDetailPage({ params }: { params: Promise<{ i
         <ArrowLeft size={16} /> Voltar para a lista
       </Link>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-brand-50 sm:col-span-3 sm:row-span-2 sm:aspect-auto">
-          {capa ? (
-            <Image
-              src={capa.url}
-              alt={imovel.titulo}
-              fill
-              className="object-cover"
-              sizes="(min-width: 640px) 66vw, 100vw"
-              priority
-            />
-          ) : (
-            <div className="flex h-full min-h-64 items-center justify-center text-brand-200">
-              <Building2 size={48} />
-            </div>
-          )}
-        </div>
-        {outrasFotos.slice(0, 2).map((foto) => (
-          <div
-            key={foto.id}
-            className="relative hidden aspect-[4/3] overflow-hidden rounded-2xl bg-brand-50 sm:block"
-          >
-            <Image src={foto.url} alt="" fill className="object-cover" sizes="25vw" />
-          </div>
-        ))}
-      </div>
-
-      {outrasFotos.length > 2 && (
-        <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
-          {outrasFotos.slice(2).map((foto) => (
-            <div
-              key={foto.id}
-              className="relative aspect-square overflow-hidden rounded-xl bg-brand-50"
-            >
-              <Image src={foto.url} alt="" fill className="object-cover" sizes="150px" />
-            </div>
-          ))}
-        </div>
-      )}
+      <GaleriaFotos fotos={fotosOrdenadas} titulo={imovel.titulo} />
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">

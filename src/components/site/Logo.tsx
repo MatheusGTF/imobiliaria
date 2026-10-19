@@ -20,21 +20,21 @@ export function Logo({
   const size = variant === "footer" ? 30 : 40;
 
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex min-w-0 items-center gap-2">
       {logoUrl ? (
         <Image
           src={logoUrl}
           alt={nome}
           width={size}
           height={size}
-          className="object-contain"
+          className="shrink-0 object-contain"
           style={{ height: size, width: "auto" }}
         />
       ) : (
         <TelhadosMark size={size} />
       )}
       <span
-        className={`whitespace-nowrap font-display font-extrabold uppercase leading-none tracking-tight ${
+        className={`font-display font-extrabold uppercase leading-tight tracking-tight sm:whitespace-nowrap sm:leading-none ${
           variant === "footer" ? "text-xs" : "text-[0.7rem] sm:text-lg"
         }`}
       >
@@ -55,6 +55,7 @@ function TelhadosMark({ size }: { size: number }) {
       viewBox="0 0 74 44"
       fill="none"
       aria-hidden="true"
+      className="shrink-0"
     >
       {/* telhado esquerdo (cinza) */}
       <path

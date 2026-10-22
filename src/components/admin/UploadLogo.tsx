@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { resizeToWebp } from "@/lib/imageResize";
+import { resizeToWebp } from "@/lib/midia/imageResize";
 import { salvarLogo } from "@/app/admin/(dashboard)/configuracoes/actions";
 
 export function UploadLogo() {

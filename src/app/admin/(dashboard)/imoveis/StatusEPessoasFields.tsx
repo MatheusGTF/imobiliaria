@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Select } from "@/components/ui/Field";
-import { STATUS_IMOVEL } from "@/lib/constants";
+import { STATUS_IMOVEL } from "@/lib/comum/constants";
 
 type Pessoa = { id: string; nome: string };
 

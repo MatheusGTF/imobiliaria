@@ -1,4 +1,4 @@
-import { TIPOS_IMOVEL } from "@/lib/constants";
+import { TIPOS_IMOVEL } from "@/lib/comum/constants";
 
 type Endereco = {
   logradouro?: string | null;

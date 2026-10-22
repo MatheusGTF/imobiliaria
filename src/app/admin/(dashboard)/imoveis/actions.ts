@@ -1,11 +1,11 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { imovelSchema, vendaSchema } from "@/lib/validations";
-import { saveUploadedPhoto, deletePhotoFile } from "@/lib/photos";
-import { aceitaAluguel, aceitaVenda } from "@/lib/constants";
-import { revalidarPortal } from "@/lib/revalidate";
-import type { ResultadoAcao } from "@/lib/acoes";
+import { prisma } from "@/lib/db/prisma";
+import { imovelSchema, vendaSchema } from "@/lib/comum/validations";
+import { saveUploadedPhoto, deletePhotoFile } from "@/lib/midia/photos";
+import { aceitaAluguel, aceitaVenda } from "@/lib/comum/constants";
+import { revalidarPortal } from "@/lib/comum/revalidate";
+import type { ResultadoAcao } from "@/lib/comum/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 

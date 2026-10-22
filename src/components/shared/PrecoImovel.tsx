@@ -1,5 +1,5 @@
-import { aceitaAluguel, aceitaVenda } from "@/lib/constants";
-import { formatCurrency } from "@/lib/format";
+import { aceitaAluguel, aceitaVenda } from "@/lib/comum/constants";
+import { formatCurrency } from "@/lib/comum/format";
 
 type ImovelPreco = {
   finalidade: string;

@@ -1,105 +1,96 @@
 # Imobiliária
 
-Sistema de gestão para corretores/imobiliárias: portal público de imóveis para
-locação e venda + painel administrativo para gerenciar imóveis, proprietários,
+Sistema de gestão para imobiliárias: **portal público** de imóveis para locação
+e venda + **painel administrativo** para gerenciar imóveis, proprietários,
 inquilinos, contratos de locação e o financeiro (recebíveis).
 
-## Stack
+## Tecnologias
 
-- **Next.js 16** (App Router) + TypeScript + Tailwind CSS
-- **Prisma 6** + SQLite em desenvolvimento (trocar para PostgreSQL em produção — veja abaixo)
-- **NextAuth v5** (login com email/senha) para proteger o painel `/admin`
-- **sharp** para otimizar as fotos enviadas (convertidas para `.webp`)
+- **Next.js 16** (App Router) + TypeScript + Tailwind CSS 4
+- **PostgreSQL** (Neon em produção) com **Prisma 6**
+- **NextAuth v5** — login do painel com e-mail e senha (+ autenticador opcional)
+- **sharp** — fotos convertidas para `.webp` · **Vercel Blob** — armazenamento das fotos
 
 ## Como rodar localmente
 
+Pré-requisitos: Node 20+ e um PostgreSQL acessível.
+
 ```bash
+cp .env.example .env     # preencha as URLs do banco, AUTH_SECRET e o admin do seed
 npm install
-npm run seed   # cria o usuário admin (admin@imobiliaria.com / admin123)
+npx prisma migrate deploy
+npm run seed             # cria o usuário administrador (usa SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD)
 npm run dev
 ```
 
-Acesse:
-- Portal público: http://localhost:3000
-- Painel administrativo: http://localhost:3000/admin/login
+- Portal público: <http://localhost:3000>
+- Painel administrativo: <http://localhost:3000/admin/login>
 
-As credenciais do usuário criado pelo seed podem ser trocadas antes de rodar
-`npm run seed`, definindo `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` no `.env`.
+No Windows há também `scripts/iniciar-local.bat`, que executa esses passos.
 
-## Estrutura
+## Estrutura do projeto
 
-- `src/app/(site)` — portal público (home, listagem de imóveis com filtros de
-  aluguel/venda, detalhe do imóvel)
-- `src/app/admin` — painel administrativo (protegido por login)
-  - `imoveis` — cadastro de imóveis (finalidade: aluguel, venda ou ambos),
-    upload/gerenciamento de fotos (capa, ordem, remoção) e registro de venda
-    (comprador, valor final, data — com opção de reabrir o anúncio)
-  - `proprietarios` / `inquilinos` — cadastros de pessoas (física ou jurídica,
-    com qualificação completa: RG/CPF ou CNPJ, nacionalidade, estado civil,
-    profissão, endereço — usados no contrato gerado)
-  - `contratos` — vincula imóvel + inquilino, gera automaticamente as parcelas
-    mensais (recebíveis) e **ao ser criado já redireciona para o contrato de
-    locação pronto para impressão/PDF**, preenchido com os dados de todas as
-    partes, do imóvel e do negócio
-  - `financeiro` — controle manual de pagamentos (marcar como pago, editar valor/data/forma)
-  - `configuracoes` — dados da imobiliária (nome, CNPJ, endereço, corretor(a)
-    responsável, CRECI, chave PIX, logo) usados no cabeçalho do contrato gerado
-- `prisma/schema.prisma` — modelo de dados
-- `src/lib/` — helpers (Prisma client, auth, upload de fotos, cálculo de vencimentos)
+```
+src/
+  app/
+    (site)/            portal público (home, imóveis, contato, privacidade)
+    admin/             painel administrativo (protegido por login)
+      (dashboard)/     dashboard, imóveis, proprietários, inquilinos,
+                       contratos, financeiro, configurações
+      contratos/[id]/documento/   contrato pronto para impressão
+      login/           tela de entrada
+    api/auth/          rota do NextAuth
+    f/                 entrega das fotos guardadas no storage privado
+  components/
+    admin/             peças do painel (upload de fotos, busca, exclusão)
+    site/              peças do portal (logo, cards, galeria de fotos)
+    shared/            usadas nos dois lados
+    ui/                botões, campos, selos, cartões
+  lib/
+    auth/              login, sessão e proteção das ações
+    comum/             formatação, dinheiro, constantes, validações
+    contratos/         texto do contrato, avisos de vencimento
+    db/                cliente do banco (Prisma)
+    financeiro/        recebíveis e divisão aluguel × administração
+    imoveis/           consultas e helpers de imóveis
+    midia/             upload e redimensionamento de fotos
+  proxy.ts             proteção do /admin e cabeçalhos de segurança
+prisma/
+  schema.prisma        modelo de dados
+  migrations/          histórico do banco (aplicado no deploy)
+  scripts/             seed, exportação e importação de dados
+docs/                  documentação (veja abaixo)
+scripts/               utilitários locais
+```
 
-## Banco de dados
+## Documentação
 
-Por padrão o projeto usa **SQLite** (`prisma/dev.db`), para zero configuração
-local. O schema não usa nenhum recurso exclusivo do SQLite, então migrar para
-PostgreSQL é só:
+| Arquivo | Assunto |
+|---|---|
+| [docs/PROJETO.md](docs/PROJETO.md) | estado atual, decisões técnicas, o que existe e o que não existe |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | publicação (Vercel + Neon + Blob) e rotina |
+| [docs/SEGURANCA.md](docs/SEGURANCA.md) | proteções implementadas e o que fazer no dia a dia |
+| [docs/LGPD.md](docs/LGPD.md) | dados pessoais tratados, bases legais, direitos dos titulares |
 
-1. Trocar `provider = "sqlite"` para `provider = "postgresql"` em `prisma/schema.prisma`
-2. Trocar `DATABASE_URL` no `.env` para a connection string do Postgres
-3. Rodar `npx prisma migrate dev`
+## Variáveis de ambiente
 
-## Fotos dos imóveis
+Veja o `.env.example`. As principais:
 
-As fotos enviadas ficam em `public/uploads` (ignorado pelo git). Ao trocar de
-servidor/hospedagem, essa pasta precisa ser migrada junto (ou trocada por um
-storage externo tipo S3/Cloudinary, se preferir).
+- `POSTGRES_PRISMA_URL` / `DATABASE_URL_UNPOOLED` — conexão do banco (criadas pelo Neon na Vercel)
+- `AUTH_SECRET` — chave que assina as sessões (valor aleatório e secreto)
+- `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` — só para criar o primeiro administrador
 
-## Variáveis de ambiente (`.env`)
+Nome fantasia, logo, telefones, Instagram, endereço e corretores do portal são
+configurados em **Configurações** no painel — não por variável de ambiente.
 
-Veja `.env.example`. As principais:
+## Decisões de escopo
 
-- `DATABASE_URL` — conexão do banco
-- `AUTH_SECRET` — chave usada pelo NextAuth para assinar sessões (gere uma nova em produção)
-
-Nome fantasia, logo, telefones, WhatsApp, Instagram, endereço e corretores
-exibidos no portal público são configurados em **Configurações** no painel
-`/admin`, não por variável de ambiente.
-
-## Decisões de escopo (v1)
-
-- **Financeiro é manual**: não há emissão de boleto/PIX integrada — os
-  recebíveis são gerados automaticamente ao criar um contrato, e marcados como
-  pagos manualmente.
-- **Contrato gerado é um modelo para impressão** (`/admin/contratos/[id]/documento`,
-  com botão "Imprimir / Salvar em PDF"), não uma assinatura digital. O texto
-  segue o modelo real fornecido pela imobiliária (locadora/administradora +
-  proprietário real do imóvel + locatário, com todas as cláusulas padrão:
-  prazo, valor, despesas, multa por atraso, caução, bens inclusos, obrigações,
-  multa por infração e foro). Cláusulas condicionais (proprietário, caução,
-  bens inclusos, observações) só aparecem quando os dados existem, e a
-  numeração das cláusulas se ajusta automaticamente.
-- **Contratos não são editáveis após criados** — apenas encerrados ou excluídos
-  (se ainda não tiverem pagamentos registrados). Para corrigir um contrato,
-  encerre-o e crie um novo.
-- **Single-tenant**: uma imobiliária, múltiplos usuários poderiam ser
-  adicionados depois se necessário.
-- **Venda não tem contrato/parcelas**: ao contrário da locação, um imóvel à
-  venda não gera recebíveis — só um registro simples (comprador, valor final,
-  data) quando marcado como vendido. Se precisar de comissão de venda,
-  histórico de propostas, etc., isso ainda não existe e precisaria ser desenhado.
-- **Cláusulas "padrão" do contrato são fixas no código**, não configuráveis
-  pelo painel: multa por atraso 10%, juros 1% ao mês, correção pelo IGP-M,
-  multa por infração de 3 meses de aluguel, obrigações/vedações do locatário.
-  Elas ficam em [contratoTexto.ts](src/lib/contratoTexto.ts) e
-  [documento/page.tsx](src/app/admin/contratos/[id]/documento/page.tsx) — se
-  a imobiliária quiser mudar esses termos padrão, é uma edição de código, não
-  uma tela de configuração.
+- **Financeiro é manual**: não há emissão de boleto/PIX integrada — as parcelas
+  são geradas ao criar o contrato e marcadas como pagas manualmente.
+- **O contrato gerado é um modelo para impressão** (com botão "Imprimir / Salvar
+  em PDF"), não uma assinatura digital. As cláusulas padrão (multa, juros,
+  correção) ficam no código, em `src/lib/contratos/contratoTexto.ts`.
+- **Contratos não são editáveis depois de criados** — encerre e crie outro. O
+  histórico de locações do imóvel é mantido.
+- **Uma imobiliária por instalação** (single-tenant).
+- **Venda não gera parcelas** — só um registro simples ao marcar como vendido.

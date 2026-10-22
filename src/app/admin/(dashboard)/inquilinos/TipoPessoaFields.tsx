@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Input, Select } from "@/components/ui/Field";
-import { TIPO_PESSOA } from "@/lib/constants";
+import { TIPO_PESSOA } from "@/lib/comum/constants";
 import type { Inquilino } from "@prisma/client";
 
 export function TipoPessoaFields({ inquilino }: { inquilino?: Inquilino | null }) {

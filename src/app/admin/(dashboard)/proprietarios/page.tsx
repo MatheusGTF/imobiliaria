@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Button } from "@/components/ui/Button";
 import { Plus, UserRound } from "lucide-react";
 

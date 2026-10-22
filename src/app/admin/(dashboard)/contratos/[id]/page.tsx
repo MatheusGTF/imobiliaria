@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
 import { BotaoExcluir } from "@/components/admin/BotaoExcluir";
-import { STATUS_CONTRATO, STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/constants";
-import { formatCurrency, formatDate, formatMonth } from "@/lib/format";
+import { STATUS_CONTRATO, STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/comum/constants";
+import { formatCurrency, formatDate, formatMonth } from "@/lib/comum/format";
 import { encerrarContrato, deleteContrato } from "../actions";
 import { FileText } from "lucide-react";
 

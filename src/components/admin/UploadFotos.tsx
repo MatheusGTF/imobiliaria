@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { resizeToWebp } from "@/lib/imageResize";
+import { resizeToWebp } from "@/lib/midia/imageResize";
 import { adicionarFoto } from "@/app/admin/(dashboard)/imoveis/actions";
 
 export function UploadFotos({ imovelId }: { imovelId: string }) {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { MapPin, Phone, MessageCircle, BadgeCheck } from "lucide-react";
-import { getEmpresa } from "@/lib/empresa";
-import { parseInstagram, whatsappLink } from "@/lib/format";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { parseInstagram, whatsappLink } from "@/lib/comum/format";
 import { InstagramIcon } from "@/components/site/InstagramIcon";
 
 export const metadata: Metadata = { title: "Contato" };

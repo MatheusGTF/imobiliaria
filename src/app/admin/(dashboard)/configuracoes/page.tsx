@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getEmpresa } from "@/lib/empresa";
+import { getEmpresa } from "@/lib/comum/empresa";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";

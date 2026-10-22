@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 
 // Linha única de configuração da imobiliária. O upsert num id fixo evita que
 // requisições simultâneas (comum logo após um deploy) criem várias linhas

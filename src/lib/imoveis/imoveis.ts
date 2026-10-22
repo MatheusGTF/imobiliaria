@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { TIPOS_VITRINE, TIPOS_VITRINE_FIXOS } from "@/lib/constants";
+import { prisma } from "@/lib/db/prisma";
+import { TIPOS_VITRINE, TIPOS_VITRINE_FIXOS } from "@/lib/comum/constants";
 
 /**
  * Quantos imóveis DISPONÍVEIS existem de cada tipo, na ordem da vitrine.

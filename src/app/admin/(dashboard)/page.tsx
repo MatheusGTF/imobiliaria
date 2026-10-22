@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/constants";
-import { avisoTermino, limiteAvisoTermino, DIAS_AVISO_TERMINO } from "@/lib/avisos";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { STATUS_PAGAMENTO, labelFor, statusEfetivoPagamento } from "@/lib/comum/constants";
+import { avisoTermino, limiteAvisoTermino, DIAS_AVISO_TERMINO } from "@/lib/contratos/avisos";
 import { Building2, FileText, Wallet, AlertTriangle, BellRing } from "lucide-react";
 
 export default async function DashboardPage() {

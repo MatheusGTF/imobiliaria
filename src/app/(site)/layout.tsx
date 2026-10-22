@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getEmpresa } from "@/lib/empresa";
-import { parseInstagram } from "@/lib/format";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { parseInstagram } from "@/lib/comum/format";
 import { Logo } from "@/components/site/Logo";
 import { InstagramIcon } from "@/components/site/InstagramIcon";
 

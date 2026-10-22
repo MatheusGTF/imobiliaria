@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Building2 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { ImovelCard } from "@/components/site/ImovelCard";
 import { MoneyInput } from "@/components/ui/MoneyInput";
-import { TIPOS_IMOVEL, TIPOS_VITRINE } from "@/lib/constants";
-import { contarDisponiveisPorTipo } from "@/lib/imoveis";
+import { TIPOS_IMOVEL, TIPOS_VITRINE } from "@/lib/comum/constants";
+import { contarDisponiveisPorTipo } from "@/lib/imoveis/imoveis";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";

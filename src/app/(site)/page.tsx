@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Search, Building2, ArrowRight } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { getEmpresa } from "@/lib/empresa";
-import { contarDisponiveisPorTipo } from "@/lib/imoveis";
+import { prisma } from "@/lib/db/prisma";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { contarDisponiveisPorTipo } from "@/lib/imoveis/imoveis";
 import { ImovelCard } from "@/components/site/ImovelCard";
 import { TipoCard } from "@/components/site/TipoCard";
 

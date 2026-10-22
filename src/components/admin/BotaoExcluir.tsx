@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import type { ResultadoAcao } from "@/lib/acoes";
+import type { ResultadoAcao } from "@/lib/comum/acoes";
 
 /**
  * Botão de exclusão que chama uma action e mostra o motivo se ela recusar

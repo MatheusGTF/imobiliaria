@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { ImovelForm } from "../ImovelForm";
 import { FotoManager } from "./FotoManager";
 import { VendaManager } from "./VendaManager";
@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/ConfirmButton";
-import { PrecoImovel } from "@/components/PrecoImovel";
+import { PrecoImovel } from "@/components/shared/PrecoImovel";
 import {
   STATUS_IMOVEL,
   STATUS_CONTRATO,
@@ -21,10 +21,10 @@ import {
   aceitaVenda,
   ehNaoResidencial,
   labelFor,
-} from "@/lib/constants";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { avisoTermino } from "@/lib/avisos";
-import { ruaENumero } from "@/lib/locacao";
+} from "@/lib/comum/constants";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { avisoTermino } from "@/lib/contratos/avisos";
+import { ruaENumero } from "@/lib/imoveis/locacao";
 import { Building2, MapPin, Pencil, FilePlus2, FileText, KeyRound } from "lucide-react";
 
 function Linha({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {

@@ -1,9 +1,10 @@
-# Memória do projeto — Imobiliária
+# Estado do projeto — Imobiliária
 
-Este arquivo é um resumo de contexto para quem (humano) for continuar
-este projeto. O [README.md](README.md) tem instruções de setup e decisões de
-escopo — leia os dois. Este arquivo foca no *estado atual* e no *porquê* de
-algumas escolhas que não são óbvias só olhando o código.
+Resumo de contexto para quem for continuar este projeto. O
+[README](../README.md) tem as instruções de setup e decisões de escopo; este
+arquivo foca no *estado atual* e no *porquê* de algumas escolhas que não são
+óbvias só olhando o código. Segurança e LGPD: veja [SEGURANCA.md](SEGURANCA.md)
+e [LGPD.md](LGPD.md).
 
 ## O que é
 
@@ -23,25 +24,25 @@ Todo o sistema (schema, páginas, actions, etc.) foi construído em cima do
 commit inicial do `create-next-app` e ficou muito tempo **sem commit**. Isso
 foi resolvido: o primeiro commit real do projeto é
 `47106a9 Implementa sistema de gestão da imobiliária (portal + painel admin)`.
-A partir daqui, trabalhe com commits normais. O banco (`prisma/dev.db`) e as
-fotos (`public/uploads/`) continuam **fora do versionamento** de propósito —
-cuidado ao trocar de máquina.
+A partir daqui, trabalhe com commits normais. Os dados (banco e fotos) ficam
+**fora do versionamento** de propósito — nunca versione dados de clientes.
 
-Rodei `npm run build` e `npm run lint` limpos como última verificação (sem
-erros). O fluxo completo (cadastro → contrato → recebíveis → documento
-impresso) foi testado manualmente no navegador.
+A última verificação (`npm run build` e `npm run lint`) passou sem erros. O
+fluxo completo (cadastro → contrato → recebíveis → documento impresso) foi
+testado manualmente no navegador.
 
-## Já tem dados reais no banco (`prisma/dev.db`)
+## Dados reais em produção
 
-Não é só dado de teste, e **o cliente adiciona/edita coisas pelo `/admin`
-entre uma sessão e outra** (em set/2026 já eram ~6 imóveis — casas, um
-terreno, um marcado como vendido —, 2 proprietários, 2 inquilinos, 2
-contratos, 1 pagamento quitado). Sempre trate o conteúdo do banco como real.
-Os dados da imobiliária em Configurações (nome fantasia, razão social, CNPJ,
-endereço, telefones, Instagram, corretores, CRECIs, PIX) estão preenchidos.
+O banco de produção (Neon) tem **dados reais de clientes** (proprietários,
+inquilinos, contratos, pagamentos) — dados pessoais protegidos pela LGPD — e a
+imobiliária adiciona/edita coisas pelo `/admin` o tempo todo. Sempre trate o
+conteúdo do banco como real. Os dados da imobiliária em Configurações (nome
+fantasia, razão social, CNPJ, endereço, telefones, Instagram, corretores,
+CRECIs, PIX) estão preenchidos.
 
-Antes de qualquer migração/deploy, rode **`npm run db:export`** para tirar um
-retrato fresco (`prisma/data-export.json`, gitignored).
+Antes de qualquer migração arriscada, rode **`npm run db:export`** para tirar
+um retrato (`prisma/data-export.json`, ignorado pelo git). Esse arquivo tem
+dados pessoais em texto puro: **apague-o logo depois de usar**.
 
 **Cuidado ao mexer/testar**: não rode scripts de limpeza genéricos (tipo
 `prisma.imovel.deleteMany()`) sem filtrar por nome/id específico.
@@ -57,9 +58,9 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   "clássico" (schema com `url = env(...)`, `new PrismaClient()` direto,
   `prisma migrate dev`) — mais estável e documentado. Se for atualizar,
   planeje uma migração dedicada, não um bump casual.
-- **SQLite em dev, Postgres em produção** — o schema não usa nada exclusivo
-  do SQLite de propósito. Trocar é só mudar `provider` + `DATABASE_URL` e
-  rodar `prisma migrate dev` de novo (veja README).
+- **PostgreSQL** (Neon em produção). O desenvolvimento local também exige um
+  Postgres (`POSTGRES_PRISMA_URL` / `DATABASE_URL_UNPOOLED`). As migrations
+  são SQL escrito à mão em `prisma/migrations/` e rodam no build da Vercel.
 - **Next.js 16 renomeou `middleware.ts` para `proxy.ts`** — um arquivo
   `middleware.ts` esquecido é **ignorado silenciosamente** (sem erro), o que
   destrava o `/admin` sem autenticação. Já migrado (`src/proxy.ts`), mas é
@@ -68,11 +69,10 @@ retrato fresco (`prisma/data-export.json`, gitignored).
 - **NextAuth v5** (beta) com Credentials provider, sessão JWT.
 - **sharp** converte toda foto enviada para `.webp` e redimensiona (aplica
   tanto às fotos de imóvel quanto à logo da imobiliária).
-- Automação de browser para testes (navegador automatizado): o `read_page`
-  (accessibility snapshot) às vezes mostra campos como vazios mesmo quando o
-  valor real no DOM/banco está correto — sempre confirme mudanças de dados
-  lendo o banco direto (`node -e "...prisma..."`) ou tirando `screenshot`,
-  não confie só no `read_page` para verificar se um form foi preenchido.
+- Testes automatizados pelo navegador: a leitura da árvore de acessibilidade
+  (`read_page`) às vezes mostra campos como vazios mesmo quando o valor real
+  no DOM/banco está correto — confirme mudanças de dados lendo o banco direto
+  ou com um `screenshot`.
 
 ## O que está implementado
 
@@ -88,7 +88,7 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   e **ao criar já redireciona para o contrato pronto para impressão**
   (`/admin/contratos/[id]/documento`). O texto do contrato foi montado a
   partir de um modelo real fornecido pelo usuário (PDF assinado) — ver
-  `src/lib/contratoTexto.ts` e a página do documento. Cláusulas condicionais
+  `src/lib/contratos/contratoTexto.ts` e a página do documento. Cláusulas condicionais
   (proprietário do imóvel, caução, bens inclusos, observações) só aparecem
   se os dados existirem; a numeração das cláusulas se ajusta sozinha.
 - **Financeiro**: lista de recebíveis por mês/status, marcar como pago,
@@ -98,8 +98,8 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   (`Empresa.nome`) aparece no portal e no cabeçalho do contrato; a **razão
   social** (`Empresa.razaoSocial`, opcional) é usada na qualificação jurídica
   da LOCADORA no contrato gerado — cai no nome fantasia se estiver vazia.
-  Ex. real: fantasia "Água Clara Imóveis" / razão social "[razão social]
-  Imobiliária".
+  Ex.: nome fantasia "Água Clara Imóveis" e a razão social cadastrada em
+  Configurações.
 - **Portal público**: home com hero + vitrine "O que temos disponível"
   (cards por tipo de imóvel com contagem de disponíveis), listagem `/imoveis`
   com chips de tipo + filtros (cidade/finalidade/quartos/valor), detalhe do
@@ -113,11 +113,11 @@ retrato fresco (`prisma/data-export.json`, gitignored).
     (`NEXT_PUBLIC_SITE_NAME` e `NEXT_PUBLIC_WHATSAPP_NUMBER` removidas). Sem
     logo enviada, o cabeçalho usa o símbolo SVG dos dois telhados. Logo real:
     enviar em `/admin/configuracoes` (vira `.webp` com transparência via sharp).
-  - Helpers em `src/lib/format.ts`: `parseInstagram()`, `whatsappLink()`.
-    Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis.ts`.
+  - Helpers em `src/lib/comum/format.ts`: `parseInstagram()`, `whatsappLink()`.
+    Contagem por tipo: `contarDisponiveisPorTipo()` em `src/lib/imoveis/imoveis.ts`.
   - Home, `/imoveis`, `/imoveis/[id]` e `/contato` são `force-dynamic`. As
     actions do `/admin` (imóveis, fotos, contratos) chamam `revalidarPortal()`
-    (`src/lib/revalidate.ts` → `revalidatePath("/", "layout")`) para o portal
+    (`src/lib/comum/revalidate.ts` → `revalidatePath("/", "layout")`) para o portal
     refletir mudanças na hora.
   - **Home mostra TODOS os imóveis disponíveis** (destaque primeiro, até 6).
     A lógica antiga escondia o resto quando havia ≥1 destaque — o cliente
@@ -127,13 +127,13 @@ retrato fresco (`prisma/data-export.json`, gitignored).
     Configurações. O "nº 1.475, Centro" que aparecia no PDF de contrato usado
     como modelo estava errado/desatualizado. Como o documento de contrato é
     gerado a partir de `Empresa.endereco`, contratos gerados de agora em diante
-    (e o de contrato antigo, se regerado) saem com o nº 6.
+    (e contratos antigos, se regerados) saem com o nº 6.
 - **Fotos em produção**: o Blob criado na Vercel é **store privado** (não
   aceita `access:"public"`). O upload grava blob privado (`put access:"private"`,
   auth por OIDC via `BLOB_STORE_ID`) e as imagens são servidas pela rota
   **`src/app/f/[...path]/route.ts`** (`GET` faz `get()` com o token do servidor
   e devolve com cache imutável). O `Foto.url`/`Empresa.logoUrl` guardam
-  `/f/uploads/xxx.webp`. O upload é **client-side**: `src/lib/imageResize.ts`
+  `/f/uploads/xxx.webp`. O upload é **client-side**: `src/lib/midia/imageResize.ts`
   redimensiona pra .webp no navegador, e `UploadFotos`/`UploadLogo`
   (`src/components/admin/`) chamam `adicionarFoto`/`salvarLogo` uma imagem por
   vez (server actions com limite de corpo de 3 MB no `next.config`). As
@@ -154,7 +154,7 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   inquilino; o portal público **nunca** mostra. Excluir inquilino registrado
   em imóvel é recusado.
 - **Tipos de imóvel e despesas** (out/2026): `TIPOS_IMOVEL` em
-  `src/lib/constants.ts` (Casa, Sobrado, Apartamento, Kitnet, Terreno,
+  `src/lib/comum/constants.ts` (Casa, Sobrado, Apartamento, Kitnet, Terreno,
   Chácara/Sítio, Galpão/Barracão, Sala comercial, Prédio/Imóvel inteiro,
   Comercial legado, Outro) — `tipo` é string livre, sem enum no banco. A
   vitrine da home mostra Casa/Apartamento/Terreno sempre e os outros tipos só
@@ -171,7 +171,7 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   frase do IPTU em `clausulaDespesas`. `Contrato.dataEntrada` (opcional, quando
   o inquilino recebe as chaves) é preenchida em `contratos/novo` e aparece no
   detalhe do contrato — não entra no texto do documento. **Avisos**:
-  `src/lib/avisos.ts` (`DIAS_AVISO_TERMINO = 60`) alimenta o card "Avisos de
+  `src/lib/contratos/avisos.ts` (`DIAS_AVISO_TERMINO = 60`) alimenta o card "Avisos de
   término e renovação" do dashboard (contratos ATIVOS com `dataFim` em até 60
   dias ou já vencidos, com telefone de proprietário e inquilino) e o selo
   "Vence em N dias" na lista de contratos. É só **aviso na tela**: não há envio
@@ -182,7 +182,7 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   **contrato** (`createContrato` marca o imóvel ALUGADO + `inquilinoId`).
   `/admin/imoveis` é uma tabela (foto, título, tipo, endereço, bairro, valor,
   status, inquilino atual, proprietário) com busca `?q=` (`BuscaForm`, GET,
-  server-side; `tiposQueCasam()` em `src/lib/locacao.ts` casa o nome do tipo).
+  server-side; `tiposQueCasam()` em `src/lib/imoveis/locacao.ts` casa o nome do tipo).
   `/admin/imoveis/[id]` mostra dados + **Locação atual** + **Histórico de
   locações** (todos os contratos do imóvel) e, abaixo, fotos/edição/venda/
   exclusão. `/admin/inquilinos` lista imóvel alugado, endereço, início/término,
@@ -210,12 +210,12 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   `Logo.tsx`) deixa o nome quebrar linha no celular — antes o menu estourava
   a largura da tela em 375px.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
-  (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/money.ts`) — ponto é
+  (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/comum/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**
   `<input type="number">` para reais: em pt-BR "5.000" era lido como 5.
 - **Taxa de administração** (`Empresa.taxaAdministracaoPercentual`, padrão 10,
   editável em Configurações) NÃO aparece em contrato nem no portal — só no
-  Financeiro (`src/lib/financeiro.ts`: aluguel → administração → repasse; a
+  Financeiro (`src/lib/financeiro/financeiro.ts`: aluguel → administração → repasse; a
   administração incide só sobre o aluguel, não sobre condomínio/IPTU).
   `Contrato.taxaAdministracaoPercentual` continua na tabela como override
   opcional, mas o formulário de contrato não pede mais.
@@ -230,8 +230,9 @@ retrato fresco (`prisma/data-export.json`, gitignored).
   fim, junto com `.next`). Nunca usar a senha real de produção.
 - **`/admin` ainda usa o visual antigo** (emerald/slate). O redesign da marca
   foi só no portal público até agora.
-- `start.bat` — script para leigos rodarem o projeto localmente (instala
-  dependências, aplica migrações, roda seed, abre o navegador).
+- `scripts/iniciar-local.bat` — script para rodar o projeto localmente
+  (instala dependências, aplica migrações, roda seed, abre o navegador).
+  Exige um Postgres local configurado no `.env`.
 
 ## O que NÃO está implementado (decisão de escopo, ver README)
 
@@ -278,7 +279,7 @@ retrato fresco (`prisma/data-export.json`, gitignored).
 4. Perguntar ao usuário se os termos fixos do contrato (multa, juros, IGP-M)
    deveriam virar configuráveis por contrato ou por imobiliária.
 5. **Bug conhecido na geração de recebíveis**: `gerarMesesReferencia`
-   (`src/lib/pagamentos.ts`) inclui o mês da `dataFim` mesmo quando o contrato
+   (`src/lib/financeiro/pagamentos.ts`) inclui o mês da `dataFim` mesmo quando o contrato
    dura exatamente N meses e termina no mesmo dia do mês em que começou. Ex.:
    contrato de 07/04/2026 a 07/04/2027 ("12 meses") gera **13** parcelas
    (abr/26 a abr/27), sendo a de abr/27 indevida. O texto do contrato mostra
@@ -286,16 +287,15 @@ retrato fresco (`prisma/data-export.json`, gitignored).
    última parcela no Financeiro, ou corrigir o algoritmo para parar no mês
    anterior à `dataFim` quando o dia de término ≤ dia de início.
 
-## Contratos reais já cadastrados (modelos usados)
+## Modelos de contrato usados
 
-- Contrato [locatário PF] (imóvel [endereço]) — primeiro
-  modelo, base do texto em `contratoTexto.ts` / página do documento.
-- Contrato **[locatária PJ]** (imóvel Casa [endereço],
-  proprietária [proprietária]) — 2º modelo real (PDF assinado). Cadastrado
-  pelo painel em 31/08/2026; validou o campo razão social. Diferenças do PDF
-  que NÃO foram implementadas no gerador (ficam como melhorias futuras):
-  numeração "CLÁUSULA PRIMEIRA" por extenso + seções numeradas, seção "DA
-  GARANTIA" sempre presente ("firmado sem caução"), qualificação completa
-  da proprietária/responsável (nacionalidade, estado civil, endereço),
-  parágrafo "moradia de colaborador" quando o locatário é PJ, bloco de
-  assinatura da LOCATÁRIA PJ com razão social + CNPJ + responsável legal.
+O texto do contrato gerado (`src/lib/contratos/contratoTexto.ts` e a página do
+documento) foi montado a partir de dois contratos reais fornecidos pela
+imobiliária — um de pessoa física e um de pessoa jurídica. Os PDFs **não** são
+versionados (têm dados pessoais de terceiros). Diferenças do segundo modelo que
+**não** foram implementadas no gerador (melhorias futuras): numeração
+"CLÁUSULA PRIMEIRA" por extenso + seções numeradas, seção "DA GARANTIA" sempre
+presente ("firmado sem caução"), qualificação completa da proprietária e do
+responsável (nacionalidade, estado civil, endereço), parágrafo "moradia de
+colaborador" quando o locatário é PJ, bloco de assinatura da LOCATÁRIA PJ com
+razão social + CNPJ + responsável legal.

@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
-import { getEmpresa } from "@/lib/empresa";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { ehNaoResidencial } from "@/lib/constants";
+import { prisma } from "@/lib/db/prisma";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { ehNaoResidencial } from "@/lib/comum/constants";
 import {
   enderecoImovel,
   descricaoTipoImovel,
@@ -16,7 +16,7 @@ import {
   formaPagamentoTexto,
   prazoTexto,
   valorLocacaoTexto,
-} from "@/lib/contratoTexto";
+} from "@/lib/contratos/contratoTexto";
 import { PrintButton } from "./PrintButton";
 import { ArrowLeft } from "lucide-react";
 

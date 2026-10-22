@@ -13,7 +13,7 @@ import {
   Briefcase,
   ArrowUpRight,
 } from "lucide-react";
-import { labelFor, TIPOS_IMOVEL } from "@/lib/constants";
+import { labelFor, TIPOS_IMOVEL } from "@/lib/comum/constants";
 
 const ICONE: Record<string, typeof Home> = {
   CASA: Home,

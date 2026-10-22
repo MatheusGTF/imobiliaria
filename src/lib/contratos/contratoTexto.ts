@@ -1,6 +1,6 @@
-import { formatCurrency, formatDate } from "@/lib/format";
-import { ehNaoResidencial } from "@/lib/constants";
-import { numeroPorExtenso, mesesEntre } from "@/lib/extenso";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { ehNaoResidencial } from "@/lib/comum/constants";
+import { numeroPorExtenso, mesesEntre } from "@/lib/contratos/extenso";
 import type { Contrato, Empresa, Imovel, Inquilino, Proprietario } from "@prisma/client";
 
 function juntar(partes: (string | null | undefined | false)[], separador = ", ") {

@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { InquilinoForm } from "../InquilinoForm";
 import { updateInquilino, deleteInquilino } from "../actions";
 import { BotaoExcluir } from "@/components/admin/BotaoExcluir";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { STATUS_CONTRATO, labelFor } from "@/lib/constants";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { avisoTermino } from "@/lib/avisos";
-import { ruaENumero } from "@/lib/locacao";
+import { STATUS_CONTRATO, labelFor } from "@/lib/comum/constants";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { avisoTermino } from "@/lib/contratos/avisos";
+import { ruaENumero } from "@/lib/imoveis/locacao";
 import { Home, FileText, Wallet, Pencil } from "lucide-react";
 
 function Linha({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {

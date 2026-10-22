@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { pagamentoSchema } from "@/lib/validations";
+import { prisma } from "@/lib/db/prisma";
+import { pagamentoSchema } from "@/lib/comum/validations";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 

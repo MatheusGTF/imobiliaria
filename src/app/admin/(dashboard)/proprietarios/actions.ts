@@ -1,8 +1,8 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { proprietarioSchema } from "@/lib/validations";
-import type { ResultadoAcao } from "@/lib/acoes";
+import { prisma } from "@/lib/db/prisma";
+import { proprietarioSchema } from "@/lib/comum/validations";
+import type { ResultadoAcao } from "@/lib/comum/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 

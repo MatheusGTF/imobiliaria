@@ -42,6 +42,7 @@ yarn-error.log*
 /prisma/dev.db-journal
 /prisma/data-export.json
 
+
 # uploaded property photos
 /public/uploads/*
 !/public/uploads/.gitkeep

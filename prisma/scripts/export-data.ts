@@ -25,7 +25,7 @@ async function main() {
     pagamentos: await prisma.pagamento.findMany(),
   };
 
-  const destino = path.join(__dirname, "data-export.json");
+  const destino = path.join(__dirname, "..", "data-export.json");
   writeFileSync(destino, JSON.stringify(dump, null, 2));
 
   const total = Object.values(dump).reduce((s, arr) => s + arr.length, 0);

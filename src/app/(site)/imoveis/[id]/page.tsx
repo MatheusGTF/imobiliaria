@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { getEmpresa } from "@/lib/empresa";
-import { formatCurrency, whatsappLink } from "@/lib/format";
-import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/constants";
-import { PrecoImovel } from "@/components/PrecoImovel";
+import { prisma } from "@/lib/db/prisma";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { formatCurrency, whatsappLink } from "@/lib/comum/format";
+import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/comum/constants";
+import { PrecoImovel } from "@/components/shared/PrecoImovel";
 import { GaleriaFotos } from "@/components/site/GaleriaFotos";
 import {
   Bed,

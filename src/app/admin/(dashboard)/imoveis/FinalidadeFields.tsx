@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Select } from "@/components/ui/Field";
 import { MoneyField } from "@/components/ui/MoneyInput";
-import { FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/constants";
+import { FINALIDADE_IMOVEL, aceitaAluguel, aceitaVenda } from "@/lib/comum/constants";
 
 export function FinalidadeFields({
   imovel,

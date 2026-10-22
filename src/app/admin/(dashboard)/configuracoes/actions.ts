@@ -1,9 +1,9 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { empresaSchema } from "@/lib/validations";
-import { getEmpresa } from "@/lib/empresa";
-import { saveUploadedPhoto, deletePhotoFile } from "@/lib/photos";
+import { prisma } from "@/lib/db/prisma";
+import { empresaSchema } from "@/lib/comum/validations";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { saveUploadedPhoto, deletePhotoFile } from "@/lib/midia/photos";
 import { revalidatePath } from "next/cache";
 
 export async function updateEmpresa(formData: FormData) {

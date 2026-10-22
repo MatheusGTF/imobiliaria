@@ -44,7 +44,7 @@ async function inserir<T extends { id: string }>(
 }
 
 async function main() {
-  const arquivo = path.join(__dirname, "data-export.json");
+  const arquivo = path.join(__dirname, "..", "data-export.json");
   const dump = JSON.parse(readFileSync(arquivo, "utf8")) as Dump;
 
   console.log(`Importando ${arquivo}...`);

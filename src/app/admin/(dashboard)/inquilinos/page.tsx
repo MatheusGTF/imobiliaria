@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { BuscaForm } from "@/components/admin/BuscaForm";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { ruaENumero } from "@/lib/locacao";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { ruaENumero } from "@/lib/imoveis/locacao";
 import { Plus, Users, Home } from "lucide-react";
 
 const imovelResumo = { id: true, titulo: true, logradouro: true, numero: true, complemento: true, bairro: true } as const;

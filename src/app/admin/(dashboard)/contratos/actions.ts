@@ -1,10 +1,10 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { contratoSchema } from "@/lib/validations";
-import { gerarMesesReferencia, calcularDataVencimento } from "@/lib/pagamentos";
-import { revalidarPortal } from "@/lib/revalidate";
-import type { ResultadoAcao } from "@/lib/acoes";
+import { prisma } from "@/lib/db/prisma";
+import { contratoSchema } from "@/lib/comum/validations";
+import { gerarMesesReferencia, calcularDataVencimento } from "@/lib/financeiro/pagamentos";
+import { revalidarPortal } from "@/lib/comum/revalidate";
+import type { ResultadoAcao } from "@/lib/comum/acoes";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 

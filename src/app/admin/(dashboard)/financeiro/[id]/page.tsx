@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Card } from "@/components/ui/Card";
 import { Input, Select, Textarea } from "@/components/ui/Field";
 import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
-import { STATUS_PAGAMENTO, FORMAS_PAGAMENTO } from "@/lib/constants";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { getEmpresa } from "@/lib/empresa";
-import { dividirPagamento } from "@/lib/financeiro";
+import { STATUS_PAGAMENTO, FORMAS_PAGAMENTO } from "@/lib/comum/constants";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { getEmpresa } from "@/lib/comum/empresa";
+import { dividirPagamento } from "@/lib/financeiro/financeiro";
 import { updatePagamento } from "../actions";
 
 function toDateInputValue(value: Date | null) {

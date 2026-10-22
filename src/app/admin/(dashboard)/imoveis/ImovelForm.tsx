@@ -1,7 +1,7 @@
 import { Input, Select, Textarea } from "@/components/ui/Field";
 import { MoneyField } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
-import { TIPOS_IMOVEL } from "@/lib/constants";
+import { TIPOS_IMOVEL } from "@/lib/comum/constants";
 import { FinalidadeFields } from "./FinalidadeFields";
 import { StatusEPessoasFields } from "./StatusEPessoasFields";
 import { DespesasFields } from "./DespesasFields";

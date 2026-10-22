@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo ============================================
 echo   Imobiliaria - iniciando sistema
@@ -12,6 +12,12 @@ if not exist ".env" (
     copy /y ".env.example" ".env" >nul
     for /f "delims=" %%s in ('powershell -NoProfile -Command "[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))"') do set "SECRET=%%s"
     powershell -NoProfile -Command "(Get-Content '.env' -Encoding UTF8) -replace 'gere-um-valor-aleatorio-aqui', '!SECRET!' | Set-Content '.env' -Encoding UTF8" >nul
+    echo.
+    echo   Abra o arquivo .env e preencha: as duas URLs do banco PostgreSQL,
+    echo   SEED_ADMIN_EMAIL e SEED_ADMIN_PASSWORD ^(senha com 12+ caracteres^).
+    notepad ".env"
+    echo   Depois de salvar e fechar o Bloco de Notas, aperte uma tecla.
+    pause >nul
 ) else (
     echo [1/5] Arquivo .env ja existe, pulando.
 )
@@ -28,7 +34,7 @@ echo [3/5] Aplicando migracoes do banco de dados...
 call npx prisma migrate deploy
 if errorlevel 1 goto :erro
 
-echo [4/5] Verificando usuario administrador padrao...
+echo [4/5] Criando usuario administrador...
 call npm run seed
 
 echo [5/5] Iniciando o servidor...

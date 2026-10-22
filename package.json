@@ -8,12 +8,12 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "seed": "tsx prisma/seed.ts",
-    "db:export": "tsx prisma/export-data.ts",
-    "db:import": "tsx prisma/import-data.ts"
+    "seed": "tsx prisma/scripts/seed.ts",
+    "db:export": "tsx prisma/scripts/export-data.ts",
+    "db:import": "tsx prisma/scripts/import-data.ts"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/scripts/seed.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

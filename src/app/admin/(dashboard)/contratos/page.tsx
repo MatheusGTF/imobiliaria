@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { STATUS_CONTRATO, labelFor } from "@/lib/constants";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { avisoTermino } from "@/lib/avisos";
+import { STATUS_CONTRATO, labelFor } from "@/lib/comum/constants";
+import { formatCurrency, formatDate } from "@/lib/comum/format";
+import { avisoTermino } from "@/lib/contratos/avisos";
 import { Plus, FileText } from "lucide-react";
 
 export default async function ContratosPage() {

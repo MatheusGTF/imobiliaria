@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Bed, Bath, Car, Building2, MapPin } from "lucide-react";
-import { PrecoImovel } from "@/components/PrecoImovel";
-import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL } from "@/lib/constants";
+import { PrecoImovel } from "@/components/shared/PrecoImovel";
+import { labelFor, TIPOS_IMOVEL, FINALIDADE_IMOVEL } from "@/lib/comum/constants";
 
 type ImovelCardData = {
   id: string;

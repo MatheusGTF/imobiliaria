@@ -3,7 +3,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { Wrapper, fieldClasses } from "./Field";
-import { formatarEntradaDinheiro, numeroParaDisplay, valorParaNumero } from "@/lib/money";
+import { formatarEntradaDinheiro, numeroParaDisplay, valorParaNumero } from "@/lib/comum/money";
 
 type MoneyInputProps = {
   name: string;

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { BuscaForm } from "@/components/admin/BuscaForm";
-import { STATUS_IMOVEL, TIPOS_IMOVEL, labelFor } from "@/lib/constants";
-import { PrecoImovel } from "@/components/PrecoImovel";
-import { ruaENumero, tiposQueCasam } from "@/lib/locacao";
+import { STATUS_IMOVEL, TIPOS_IMOVEL, labelFor } from "@/lib/comum/constants";
+import { PrecoImovel } from "@/components/shared/PrecoImovel";
+import { ruaENumero, tiposQueCasam } from "@/lib/imoveis/locacao";
 import { Plus, Building2 } from "lucide-react";
 
 export default async function ImoveisPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {

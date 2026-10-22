@@ -1,5 +1,7 @@
 "use server";
 
+import { exigirAdmin } from "@/lib/auth/acesso";
+import { registrarAuditoria } from "@/lib/seguranca/auditoria";
 import { prisma } from "@/lib/db/prisma";
 import { proprietarioSchema } from "@/lib/comum/validations";
 import type { ResultadoAcao } from "@/lib/comum/acoes";
@@ -16,20 +18,25 @@ function parse(formData: FormData) {
 }
 
 export async function createProprietario(formData: FormData) {
+  const admin = await exigirAdmin();
   const data = parse(formData);
-  await prisma.proprietario.create({ data });
+  const criado = await prisma.proprietario.create({ data });
+  await registrarAuditoria({ acao: "PROPRIETARIO_CRIADO", userId: admin.id, email: admin.email, detalhe: criado.id });
   revalidatePath("/admin/proprietarios");
   redirect("/admin/proprietarios");
 }
 
 export async function updateProprietario(id: string, formData: FormData) {
+  const admin = await exigirAdmin();
   const data = parse(formData);
   await prisma.proprietario.update({ where: { id }, data });
+  await registrarAuditoria({ acao: "PROPRIETARIO_ALTERADO", userId: admin.id, email: admin.email, detalhe: id });
   revalidatePath("/admin/proprietarios");
   redirect("/admin/proprietarios");
 }
 
 export async function deleteProprietario(id: string): Promise<ResultadoAcao> {
+  const admin = await exigirAdmin();
   const imoveisVinculados = await prisma.imovel.count({ where: { proprietarioId: id } });
   if (imoveisVinculados > 0) {
     return {
@@ -39,6 +46,7 @@ export async function deleteProprietario(id: string): Promise<ResultadoAcao> {
   }
 
   await prisma.proprietario.delete({ where: { id } });
+  await registrarAuditoria({ acao: "PROPRIETARIO_EXCLUIDO", userId: admin.id, email: admin.email, detalhe: id });
   revalidatePath("/admin/proprietarios");
   return { ok: true };
 }

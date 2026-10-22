@@ -1,5 +1,7 @@
 "use server";
 
+import { exigirAdmin } from "@/lib/auth/acesso";
+import { registrarAuditoria } from "@/lib/seguranca/auditoria";
 import { prisma } from "@/lib/db/prisma";
 import { contratoSchema } from "@/lib/comum/validations";
 import { gerarMesesReferencia, calcularDataVencimento } from "@/lib/financeiro/pagamentos";
@@ -9,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createContrato(formData: FormData) {
+  const admin = await exigirAdmin();
   const raw = Object.fromEntries(formData.entries());
   const parsed = contratoSchema.safeParse(raw);
   if (!parsed.success) {
@@ -58,6 +61,7 @@ export async function createContrato(formData: FormData) {
     data: { status: "ALUGADO", inquilinoId: data.inquilinoId },
   });
 
+  await registrarAuditoria({ acao: "CONTRATO_CRIADO", userId: admin.id, email: admin.email, detalhe: contrato.id });
   revalidatePath("/admin/contratos");
   revalidatePath("/admin/imoveis");
   revalidatePath(`/admin/imoveis/${data.imovelId}`);
@@ -73,6 +77,7 @@ export async function createContrato(formData: FormData) {
  * segue "Alugado" até alguém liberá-lo na tela do imóvel.
  */
 export async function encerrarContrato(formData: FormData) {
+  const admin = await exigirAdmin();
   const id = formData.get("id") as string;
   const liberarImovel = formData.get("liberarImovel") === "on";
 
@@ -96,6 +101,7 @@ export async function encerrarContrato(formData: FormData) {
     });
   }
 
+  await registrarAuditoria({ acao: "CONTRATO_ENCERRADO", userId: admin.id, email: admin.email, detalhe: id });
   revalidatePath("/admin/contratos");
   revalidatePath(`/admin/contratos/${id}`);
   revalidatePath("/admin/imoveis");
@@ -110,6 +116,7 @@ export async function encerrarContrato(formData: FormData) {
  * apaga também o histórico de pagamentos.
  */
 export async function deleteContrato(id: string, forcar = false): Promise<ResultadoAcao> {
+  const admin = await exigirAdmin();
   const contrato = await prisma.contrato.findUnique({ where: { id } });
   if (!contrato) return { error: "Contrato não encontrado." };
 
@@ -126,6 +133,7 @@ export async function deleteContrato(id: string, forcar = false): Promise<Result
 
   await prisma.pagamento.deleteMany({ where: { contratoId: id } });
   await prisma.contrato.delete({ where: { id } });
+  await registrarAuditoria({ acao: "CONTRATO_EXCLUIDO", userId: admin.id, email: admin.email, detalhe: forcar ? `${id} (forçado)` : id });
 
   const outrosAtivos = await prisma.contrato.count({
     where: { imovelId: contrato.imovelId, status: "ATIVO" },

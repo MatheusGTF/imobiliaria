@@ -1,11 +1,14 @@
 "use server";
 
+import { exigirAdmin } from "@/lib/auth/acesso";
+import { registrarAuditoria } from "@/lib/seguranca/auditoria";
 import { prisma } from "@/lib/db/prisma";
 import { pagamentoSchema } from "@/lib/comum/validations";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function marcarComoPago(formData: FormData) {
+  const admin = await exigirAdmin();
   const id = formData.get("id") as string;
 
   const pagamento = await prisma.pagamento.findUnique({ where: { id } });
@@ -19,11 +22,13 @@ export async function marcarComoPago(formData: FormData) {
       dataPagamento: new Date(),
     },
   });
+  await registrarAuditoria({ acao: "PAGAMENTO_MARCADO_PAGO", userId: admin.id, email: admin.email, detalhe: id });
 
   revalidatePath("/admin/financeiro");
 }
 
 export async function updatePagamento(id: string, formData: FormData) {
+  const admin = await exigirAdmin();
   const raw = Object.fromEntries(formData.entries());
   const parsed = pagamentoSchema.safeParse(raw);
   if (!parsed.success) {
@@ -41,6 +46,7 @@ export async function updatePagamento(id: string, formData: FormData) {
       observacoes: data.observacoes,
     },
   });
+  await registrarAuditoria({ acao: "PAGAMENTO_ALTERADO", userId: admin.id, email: admin.email, detalhe: id });
 
   revalidatePath("/admin/financeiro");
   redirect("/admin/financeiro");

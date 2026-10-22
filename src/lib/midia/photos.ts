@@ -1,6 +1,7 @@
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import sharp from "sharp";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
@@ -15,16 +16,41 @@ const usarBlob =
   !!process.env.BLOB_READ_WRITE_TOKEN ||
   !!process.env.BLOB_STORE_ID;
 
+const TAMANHO_MAXIMO = 5 * 1024 * 1024; // 5 MB (o navegador já envia bem menos)
+const FORMATOS_ACEITOS = new Set(["jpeg", "png", "webp", "gif"]);
+
+/**
+ * Não confia no que o navegador informa (nome, tipo): abre o arquivo de verdade
+ * com o sharp. Só passa imagem válida; o resultado é sempre um .webp novo, sem
+ * metadados (EXIF, incluindo a localização GPS da foto) e no máximo 2000 px.
+ */
+async function prepararImagem(file: File): Promise<Buffer> {
+  if (!file || file.size === 0) throw new Error("Arquivo vazio.");
+  if (file.size > TAMANHO_MAXIMO) throw new Error("A imagem é grande demais (máximo 5 MB).");
+
+  try {
+    const imagem = sharp(Buffer.from(await file.arrayBuffer()), { limitInputPixels: 50_000_000 });
+    const { format } = await imagem.metadata();
+    if (!format || !FORMATOS_ACEITOS.has(format)) throw new Error("formato não aceito");
+    return await imagem
+      .rotate() // aplica a orientação do EXIF antes de descartá-lo
+      .resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
+  } catch {
+    throw new Error("O arquivo enviado não é uma imagem válida (use JPG, PNG ou WebP).");
+  }
+}
+
 export async function saveUploadedPhoto(file: File): Promise<string> {
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const ext = file.type === "image/webp" ? "webp" : file.name.split(".").pop() || "jpg";
-  const filename = `${randomUUID()}.${ext}`;
+  const bytes = await prepararImagem(file);
+  const filename = `${randomUUID()}.webp`;
 
   if (usarBlob) {
     const { put } = await import("@vercel/blob");
     const { pathname } = await put(`uploads/${filename}`, bytes, {
       access: "private",
-      contentType: file.type || "image/webp",
+      contentType: "image/webp",
       addRandomSuffix: false,
     });
     return `/f/${pathname}`; // servido pela rota src/app/f/[...path]/route.ts

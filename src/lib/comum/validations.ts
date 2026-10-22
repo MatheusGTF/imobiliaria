@@ -119,6 +119,8 @@ export const empresaSchema = z.object({
   responsavel2Nome: optionalString,
   responsavel2Creci: optionalString,
   chavePix: optionalString,
+  emailPrivacidade: emailOptional,
+  encarregadoNome: optionalString,
   taxaAdministracaoPercentual: numberFromForm({ min: 0 }).refine(
     (v) => v === undefined || v <= 100,
     "A taxa deve ficar entre 0 e 100%",

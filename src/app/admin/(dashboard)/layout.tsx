@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth/auth";
+import { exigirAdmin } from "@/lib/auth/acesso";
 import { logoutAction } from "./logout-action";
 import {
   LayoutDashboard,
@@ -9,6 +9,7 @@ import {
   FileText,
   Wallet,
   Settings,
+  ShieldCheck,
   LogOut,
 } from "lucide-react";
 
@@ -20,12 +21,13 @@ const NAV = [
   { href: "/admin/contratos", label: "Contratos", icon: FileText },
   { href: "/admin/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
+  { href: "/admin/seguranca", label: "Segurança", icon: ShieldCheck },
 ];
 
 // No celular o menu vira uma barra no topo (com rolagem lateral); a partir de
 // `md` volta a ser a coluna fixa da esquerda.
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const admin = await exigirAdmin();
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 md:flex-row">
@@ -58,7 +60,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           ))}
         </nav>
         <div className="hidden border-t border-slate-200 p-3 md:block">
-          <p className="truncate px-3 text-xs text-slate-500">{session?.user?.email}</p>
+          <p className="truncate px-3 text-xs text-slate-500">{admin.email}</p>
           <form action={logoutAction}>
             <button
               type="submit"

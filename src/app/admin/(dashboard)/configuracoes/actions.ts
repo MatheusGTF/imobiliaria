@@ -1,5 +1,7 @@
 "use server";
 
+import { exigirAdmin } from "@/lib/auth/acesso";
+import { registrarAuditoria } from "@/lib/seguranca/auditoria";
 import { prisma } from "@/lib/db/prisma";
 import { empresaSchema } from "@/lib/comum/validations";
 import { getEmpresa } from "@/lib/comum/empresa";
@@ -7,6 +9,7 @@ import { saveUploadedPhoto, deletePhotoFile } from "@/lib/midia/photos";
 import { revalidatePath } from "next/cache";
 
 export async function updateEmpresa(formData: FormData) {
+  const admin = await exigirAdmin();
   const raw = Object.fromEntries(formData.entries());
   const parsed = empresaSchema.safeParse(raw);
   if (!parsed.success) {
@@ -18,6 +21,7 @@ export async function updateEmpresa(formData: FormData) {
     where: { id: empresa.id },
     data: parsed.data,
   });
+  await registrarAuditoria({ acao: "CONFIGURACOES_ALTERADAS", userId: admin.id, email: admin.email, detalhe: null });
 
   revalidatePath("/admin/configuracoes");
   revalidatePath("/", "layout");
@@ -27,6 +31,7 @@ export async function updateEmpresa(formData: FormData) {
 export async function salvarLogo(
   formData: FormData,
 ): Promise<{ ok: true } | { error: string }> {
+  await exigirAdmin();
   try {
     const file = formData.get("logo") as File | null;
     if (!file || file.size === 0) return { error: "Nenhum arquivo selecionado." };
@@ -46,6 +51,7 @@ export async function salvarLogo(
 }
 
 export async function removerLogo() {
+  await exigirAdmin();
   const empresa = await getEmpresa();
   if (empresa.logoUrl) await deletePhotoFile(empresa.logoUrl);
 

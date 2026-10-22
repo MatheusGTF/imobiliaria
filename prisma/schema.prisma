@@ -20,8 +20,31 @@ model User {
   email        String   @unique
   passwordHash String
   role         String   @default("ADMIN") // ADMIN | CORRETOR
+
+  // Autenticador em duas etapas (TOTP, o mesmo do Google Authenticator).
+  totpSecret         String?  // segredo CRIPTOGRAFADO (AES-256-GCM, chave derivada do AUTH_SECRET)
+  totpAtivo          Boolean  @default(false)
+  totpUltimoPasso    Int?     // último intervalo de 30s aceito (impede reutilizar o mesmo código)
+  codigosRecuperacao String?  // JSON com os HASHES dos códigos de recuperação ainda não usados
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// Registro de segurança/atividade do painel. Guarda só identificadores (nunca
+// dados pessoais de clientes) e é apagado automaticamente após 180 dias.
+model LogAuditoria {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String?
+  acao      String   // ex.: LOGIN_OK, LOGIN_FALHA, CONTRATO_EXCLUIDO
+  detalhe   String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([acao, ip, createdAt])
+  @@index([acao, email, createdAt])
 }
 
 model Proprietario {
@@ -78,6 +101,9 @@ model Empresa {
   responsavel2Creci String?
   chavePix          String?
   logoUrl           String?
+  // Canal para os titulares exercerem direitos da LGPD (exibido em /privacidade).
+  emailPrivacidade  String?
+  encarregadoNome   String?  // pessoa responsável pelo atendimento (encarregado/DPO)
   // % que a imobiliária retém do aluguel. Só aparece no Financeiro — nunca no
   // contrato nem no portal. Um contrato pode ter taxa própria (Contrato.taxaAdministracaoPercentual).
   taxaAdministracaoPercentual Float @default(10)

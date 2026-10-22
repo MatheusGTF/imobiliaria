@@ -1,5 +1,7 @@
 "use server";
 
+import { exigirAdmin } from "@/lib/auth/acesso";
+import { registrarAuditoria } from "@/lib/seguranca/auditoria";
 import { prisma } from "@/lib/db/prisma";
 import { imovelSchema, vendaSchema } from "@/lib/comum/validations";
 import { saveUploadedPhoto, deletePhotoFile } from "@/lib/midia/photos";
@@ -34,6 +36,7 @@ function parseImovelForm(formData: FormData) {
 }
 
 export async function createImovel(formData: FormData) {
+  await exigirAdmin();
   const data = parseImovelForm(formData);
 
   const imovel = await prisma.imovel.create({ data });
@@ -44,6 +47,7 @@ export async function createImovel(formData: FormData) {
 }
 
 export async function updateImovel(id: string, formData: FormData) {
+  await exigirAdmin();
   const data = parseImovelForm(formData);
 
   await prisma.imovel.update({ where: { id }, data });
@@ -54,6 +58,7 @@ export async function updateImovel(id: string, formData: FormData) {
 }
 
 export async function marcarVendido(id: string, formData: FormData) {
+  await exigirAdmin();
   const raw = Object.fromEntries(formData.entries());
   const parsed = vendaSchema.safeParse(raw);
   if (!parsed.success) {
@@ -78,6 +83,7 @@ export async function marcarVendido(id: string, formData: FormData) {
 }
 
 export async function reabrirAnuncio(formData: FormData) {
+  await exigirAdmin();
   const id = formData.get("id") as string;
 
   await prisma.imovel.update({
@@ -102,6 +108,7 @@ export async function reabrirAnuncio(formData: FormData) {
  * contrato ativo, não faz nada (o contrato precisa ser encerrado antes).
  */
 export async function liberarImovel(formData: FormData) {
+  await exigirAdmin();
   const id = formData.get("id") as string;
 
   const ativos = await prisma.contrato.count({ where: { imovelId: id, status: "ATIVO" } });
@@ -116,6 +123,7 @@ export async function liberarImovel(formData: FormData) {
 }
 
 export async function deleteImovel(id: string): Promise<ResultadoAcao> {
+  const admin = await exigirAdmin();
   const contratosVinculados = await prisma.contrato.count({ where: { imovelId: id } });
   if (contratosVinculados > 0) {
     return {
@@ -128,6 +136,7 @@ export async function deleteImovel(id: string): Promise<ResultadoAcao> {
   await Promise.all(fotos.map((f) => deletePhotoFile(f.url)));
 
   await prisma.imovel.delete({ where: { id } });
+  await registrarAuditoria({ acao: "IMOVEL_EXCLUIDO", userId: admin.id, email: admin.email, detalhe: id });
 
   revalidatePath("/admin/imoveis");
   revalidarPortal();
@@ -143,6 +152,7 @@ export async function adicionarFoto(
   imovelId: string,
   formData: FormData,
 ): Promise<{ ok: true } | { error: string }> {
+  await exigirAdmin();
   try {
     const file = formData.get("foto") as File | null;
     if (!file || file.size === 0) return { error: "Arquivo vazio." };
@@ -163,6 +173,7 @@ export async function adicionarFoto(
 }
 
 export async function deleteFoto(formData: FormData) {
+  await exigirAdmin();
   const id = formData.get("id") as string;
   const imovelId = formData.get("imovelId") as string;
 
@@ -192,6 +203,7 @@ export async function deleteFoto(formData: FormData) {
  * mesma coisa: quem fica em primeiro aparece no portal e nos cards.
  */
 export async function reordenarFotos(imovelId: string, idsEmOrdem: string[]): Promise<ResultadoAcao> {
+  await exigirAdmin();
   try {
     const existentes = await prisma.foto.findMany({
       where: { imovelId },

@@ -17,6 +17,17 @@ type Filtros = {
   valorMax?: string;
 };
 
+const TIPOS_VALIDOS = new Set<string>(TIPOS_IMOVEL.map((t) => t.value));
+const LIMITE_RESULTADOS = 60;
+
+// Os filtros vêm da URL, que qualquer pessoa pode editar: valores fora do esperado
+// são ignorados em vez de derrubar a página ou pesar no banco.
+function inteiroSeguro(valor: string | undefined, min: number, max: number): number | undefined {
+  if (!valor) return undefined;
+  const n = Number(valor);
+  return Number.isFinite(n) && n >= min && n <= max ? Math.floor(n) : undefined;
+}
+
 function hrefComTipo(filtros: Filtros, tipo: string | null) {
   const params = new URLSearchParams();
   if (filtros.finalidade) params.set("finalidade", filtros.finalidade);
@@ -34,17 +45,21 @@ export default async function ImoveisListPage({
   const filtros = await searchParams;
   const { cidade, tipo, finalidade, quartos, valorMax } = filtros;
 
+  const cidadeBusca = cidade?.trim().slice(0, 80);
+  const quartosMin = inteiroSeguro(quartos, 0, 20);
+  const valorTeto = inteiroSeguro(valorMax, 0, 1_000_000_000);
+
   const where: Prisma.ImovelWhereInput = { status: "DISPONIVEL" };
-  if (cidade) where.cidade = { contains: cidade };
-  if (tipo) where.tipo = tipo;
-  if (quartos) where.quartos = { gte: Number(quartos) };
+  if (cidadeBusca) where.cidade = { contains: cidadeBusca };
+  if (tipo && TIPOS_VALIDOS.has(tipo)) where.tipo = tipo;
+  if (quartosMin !== undefined) where.quartos = { gte: quartosMin };
 
   if (finalidade === "ALUGUEL") {
     where.finalidade = { in: ["ALUGUEL", "AMBOS"] };
-    if (valorMax) where.valorAluguel = { lte: Number(valorMax) };
+    if (valorTeto !== undefined) where.valorAluguel = { lte: valorTeto };
   } else if (finalidade === "VENDA") {
     where.finalidade = { in: ["VENDA", "AMBOS"] };
-    if (valorMax) where.valorVenda = { lte: Number(valorMax) };
+    if (valorTeto !== undefined) where.valorVenda = { lte: valorTeto };
   }
 
   const [imoveis, { porTipo, total }] = await Promise.all([
@@ -52,6 +67,7 @@ export default async function ImoveisListPage({
       where,
       include: { fotos: { where: { capa: true }, take: 1 } },
       orderBy: [{ destaque: "desc" }, { createdAt: "desc" }],
+      take: LIMITE_RESULTADOS,
     }),
     contarDisponiveisPorTipo(),
   ]);
@@ -72,7 +88,7 @@ export default async function ImoveisListPage({
       <h1 className="font-display text-3xl font-extrabold text-ink-900">{titulo}</h1>
       <p className="mt-1 text-sm text-ink-500">
         {total} {total === 1 ? "imóvel disponível" : "imóveis disponíveis"} no total
-        {tipo ? ` · filtrando por ${TIPOS_IMOVEL.find((t) => t.value === tipo)?.plural ?? tipo}` : ""}
+        {tipo && TIPOS_VALIDOS.has(tipo) ? ` · filtrando por ${TIPOS_IMOVEL.find((t) => t.value === tipo)?.plural}` : ""}
       </p>
 
       {/* Chips por tipo */}

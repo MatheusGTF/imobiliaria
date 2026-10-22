@@ -113,6 +113,21 @@ export default async function ConfiguracoesPage() {
             defaultValue={empresa.chavePix ?? ""}
             placeholder="CNPJ, telefone, email ou chave aleatória"
           />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input
+              label="E-mail para assuntos de privacidade (LGPD)"
+              name="emailPrivacidade"
+              type="email"
+              defaultValue={empresa.emailPrivacidade ?? ""}
+              hint="Aparece na Política de Privacidade: é por onde clientes pedem acesso, correção ou exclusão dos seus dados."
+            />
+            <Input
+              label="Responsável pelos dados pessoais"
+              name="encarregadoNome"
+              defaultValue={empresa.encarregadoNome ?? ""}
+              placeholder="Quem atende esses pedidos (encarregado)"
+            />
+          </div>
           <Input
             label="Taxa de administração (%)"
             name="taxaAdministracaoPercentual"

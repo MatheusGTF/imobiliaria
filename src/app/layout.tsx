@@ -24,6 +24,10 @@ export const metadata: Metadata = {
     "Imóveis para alugar e comprar em Água Clara/MS. Consulte casas, apartamentos e terrenos disponíveis.",
 };
 
+// Todas as páginas são geradas a cada visita: é isso que permite o "nonce" da
+// política de segurança de conteúdo (src/proxy.ts) valer em cada requisição.
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html

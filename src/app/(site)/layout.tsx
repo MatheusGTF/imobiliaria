@@ -75,6 +75,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             {empresa.responsavel2Creci ? ` · CRECI ${empresa.responsavel2Creci}` : ""}. Todos os
             direitos reservados.
           </p>
+          <Link href="/privacidade" className="font-semibold text-ink-500 underline-offset-2 hover:text-brand-700 hover:underline">
+            Política de Privacidade
+          </Link>
         </div>
       </footer>
     </div>

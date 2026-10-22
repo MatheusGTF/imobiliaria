@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db/prisma";
+import { exigirAdmin } from "@/lib/auth/acesso";
+import { registrarAuditoria } from "@/lib/seguranca/auditoria";
 import { getEmpresa } from "@/lib/comum/empresa";
 import { formatCurrency, formatDate } from "@/lib/comum/format";
 import { ehNaoResidencial } from "@/lib/comum/constants";
@@ -23,6 +25,7 @@ import { ArrowLeft } from "lucide-react";
 type Item = { secao?: string; corpo?: string };
 
 export default async function ContratoDocumentoPage({ params }: { params: Promise<{ id: string }> }) {
+  const admin = await exigirAdmin();
   const { id } = await params;
 
   const [contrato, empresa] = await Promise.all([
@@ -34,6 +37,14 @@ export default async function ContratoDocumentoPage({ params }: { params: Promis
   ]);
 
   if (!contrato) notFound();
+
+  // O documento reúne dados pessoais das partes: registra quem abriu.
+  await registrarAuditoria({
+    acao: "CONTRATO_DOCUMENTO_VISUALIZADO",
+    userId: admin.id,
+    email: admin.email,
+    detalhe: id,
+  });
 
   const { imovel, inquilino } = contrato;
   const proprietario = imovel.proprietario;

@@ -209,6 +209,18 @@ dados pessoais em texto puro: **apague-o logo depois de usar**.
   ordem certa (capa primeiro). O cabeçalho do portal (`(site)/layout.tsx` +
   `Logo.tsx`) deixa o nome quebrar linha no celular — antes o menu estourava
   a largura da tela em 375px.
+- **Segurança e LGPD** (out/2026) — detalhes em [SEGURANCA.md](SEGURANCA.md) e
+  [LGPD.md](LGPD.md). Resumo: `src/proxy.ts` protege o `/admin` e define a CSP com
+  nonce (por isso **todas** as páginas são dinâmicas: `dynamic = "force-dynamic"`
+  no layout raiz); **toda ação "use server" começa com `exigirAdmin()`**
+  (`src/lib/auth/acesso.ts`); login com bloqueio de tentativas, sessão de 8 h e
+  **autenticador TOTP opcional** (`src/lib/seguranca/`, tela `/admin/seguranca`, que
+  também troca senha/e-mail e mostra a atividade recente); `LogAuditoria` guarda
+  só IDs e é apagado após 180 dias; upload revalida a imagem com o sharp e remove
+  EXIF; `/f/[...path]` só serve `uploads/*.webp|jpg|png`; filtros públicos são
+  validados; página `/privacidade` + campos de contato LGPD em Configurações.
+  O segredo do autenticador é criptografado com chave derivada do `AUTH_SECRET`
+  (trocá-lo invalida os autenticadores). Emergência: `prisma/scripts/redefinir-acesso.ts`.
 - **Dinheiro nos formulários**: usar sempre `MoneyField`/`MoneyInput`
   (`src/components/ui/MoneyInput.tsx`, lógica em `src/lib/comum/money.ts`) — ponto é
   milhar, vírgula é decimal, e o servidor recebe "5000.50". **Nunca**
@@ -251,7 +263,7 @@ dados pessoais em texto puro: **apague-o logo depois de usar**.
 
 1. **Commitar o projeto no git** — feito (ver acima).
 2. **Deploy — NO AR** (31/08/2026). **Vercel + Neon (Postgres) + Vercel Blob**.
-   - Repo: <https://github.com/MatheusGTF/imobiliaria> (branch `main`, **público**).
+   - Repo: <https://github.com/MatheusGTF/imobiliaria> (branch `main`; recomendado deixá-lo **privado**).
      Push → deploy automático.
    - Time/projeto Vercel: `fiotec1` / `imobiliaria`.
    - **URL de produção atual**: `https://imobiliaria-ashen-delta.vercel.app`
